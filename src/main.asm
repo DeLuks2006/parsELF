@@ -24,6 +24,15 @@ _start:
   test  rax, rax
   jnz   exit
 
+; PRINTN (rdi *txt, rsi *num)
+  lea   rdi, [rel txt]
+  lea   rsi, [rel buf]
+  call  printn
+  add   rsp, 0x0c
+
+  test  rax, rax
+  jnz   exit
+
 ; EXIT
 exit:
   xor   rdi,  rdi       ; retval
@@ -32,6 +41,7 @@ exit:
 
 section   .data
   num   dd  420
+  txt   db  "This is a silly number: ", 0x00
 
   elfh  istruc elf64_hdr iend 
 

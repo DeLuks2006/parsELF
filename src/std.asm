@@ -2,6 +2,9 @@
 ; THIS IS A FILE WITH BASIC/STANDARD FUNCTIONALITY TO MAKE MY LIFE EASIER
 
 ; ITOA ----------------------------------------------------------------------
+; converts a number to decimal representation in ASCII
+; TODO: Implement so it converts to hex instead of decimal
+
 itoa:
   push  rbp
   mov   rbp,  rsp
@@ -57,7 +60,8 @@ itoa_buf_overflow:
   ret
 
 ; PRINT ---------------------------------------------------------------------
-; TODO: MAKE LESS UGLY...
+; calulates the strlen and prints the given string
+
 print:
   push  rbp
   mov   rbp,  rsp
@@ -91,7 +95,31 @@ print_out:
   inc   rax               ; sys_write
   syscall
 
-  xor   rax, rax
-  mov   rsp, rbp
+  xor   rax,  rax
+  mov   rsp,  rbp
+  pop   rbp
+  ret
+
+; PRINTN --------------------------------------------------------------------
+; prints some text and then a number
+
+printn:
+  push  rbp
+  mov   rbp,  rsp
+  
+  ; RDI = STRING
+  ; RSI = NUMBER + \n
+
+  push  rsi
+  xor   rsi,  rsi
+  call  print
+
+  pop   rdi
+  xor   rsi, rsi
+  inc   rsi
+  call  print
+
+  xor   rax,  rax
+  mov   rsp,  rbp
   pop   rbp
   ret
