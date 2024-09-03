@@ -73,16 +73,16 @@ print_len:
   
 print_len_done:
   sub   rax,  rbx         ; get len
-  inc   rax               ; dont forget the 0
 
   cmp   rsi, 0x01         ; check if we want newline
   je    print_newline_add
   jmp   print_out
 
 print_newline_add:
-  mov   byte [rbx+rax-1], 0x0A
+  mov   byte [rbx+rax], 0x0A
 
 print_out:
+  add   rax,  0x02        ; so it prints the \n\0
   mov   rdx,  rax         ; len
   mov   rsi,  rdi         ; buf ptr
   xor   rdi,  rdi

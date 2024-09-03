@@ -33,8 +33,28 @@ exit:
 section   .data
   num   dd  420
 
+  elfh  istruc elf64_hdr iend 
+
 section   .bss
   buf   resb  0x10
+
+  ; define struct
+  struc elf64_hdr
+  .e_ident:      resb 0x10
+  .e_type:       resw 0x01
+  .e_machine:    resw 0x01
+  .e_version:    resd 0x01
+  .e_entry:      resq 0x01
+  .e_phoff:      resq 0x01
+  .e_shoff:      resq 0x01
+  .e_flags:      resd 0x01
+  .e_ehsize:     resw 0x01
+  .e_phentsize:  resw 0x01
+  .e_phnum:      resw 0x01
+  .e_shentsize:  resw 0x01
+  .e_shnum:      resw 0x01
+  .e_shstrndx:   resw 0x01
+  endstruc
 
 ; save:
 ; rbx, rsp, rbp, r12-r15
