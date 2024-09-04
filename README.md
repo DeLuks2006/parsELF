@@ -1,4 +1,4 @@
-<h1 align=center>shELF</h1>
+<h1 align=center>parsELF</h1>
 <p align=center>codes' shit but itll parse yer ELF - 7etuso</p>
 
 > [!CAUTION]
@@ -17,3 +17,8 @@
 - ITOA (decimal)
 - PRINT
 - PRINTN
+
+## About:
+
+This *bombastic ELF parser* is just a little project to get comfortable with assembly and ELF files. 
+Also this kind of project was suggested for me to do by bextr and other members of tmpout!
