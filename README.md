@@ -9,7 +9,7 @@
 
 ## TODO:
 
-- [ ] ITOA but convert to hexadecimal
+- [X] ITOA but convert to hexadecimal
 - [ ] Actually open a file and read it for once
 - [ ] Parse ELF header
 - [ ] ...
