@@ -18,17 +18,31 @@ itoa:
   xor   rcx,  rcx       ; clear counter
 
 itoa_calc_loop:
-  xor   rdx, rdx        ; clear reg
-  mov   rsi, 0x0A       ; rbx = base
+  xor   rdx,  rdx       ; clear reg
+  mov   rsi,  0x0A      ; rbx = base
+  cmp   r10,  0x02      ; check if we want hex
+  mov   r9,   0x10
+  cmovz rsi,  r9        ; if zf move 16 as base
+
   div   rsi             ; rax = res
 
+  cmp   rdx, 0x0A
+  jge   itoa_hex
   add   rdx, '0'        ; convert to ascii
+
+itoa_cont_loop:
   push  rdx             ; mov num to stack
 
   inc   rcx             ; inc counter
   test  rax, rax        ; check if res = 0
-  jnz   itoa_calc_loop
+  jnz   itoa_calc_loop  ; we not done
+  jmp   itoa_exit_calc  ; we done
 
+itoa_hex:
+  add   rdx, 0x37       ; if this dont work, add "A" and sub 0x0A
+  jmp   itoa_cont_loop  
+
+itoa_exit_calc:
 ; need for buffer size check
   inc   rcx             ; add space for \0
   mov   rax,  rcx       ; save value in rax

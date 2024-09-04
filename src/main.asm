@@ -8,6 +8,7 @@ _start:
   mov   edi, [rel num]  ; mov number to edi
   lea   rsi, buf        ; mov buffer to esi
   mov   rdx, 0x10       ; mov buffer size to rdx
+  mov   r10, 0x02       ; base (1 = 10, 2 = 16)
   call  itoa            ; call itoa
 
   add   rsp, 0x0C       ; clean up stack
