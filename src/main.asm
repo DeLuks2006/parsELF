@@ -46,17 +46,16 @@ exit:
   syscall
 
 usage:
-  lea   rdi,  [rel usg1]  ; "Usage: "
+  lea   rdi,  usg1    ; "Usage: "
   xor   rsi,  rsi
   call  print
 
-  pop   rdi               ; argv[0]
+  pop   rdi           ; argv[0]
   xor   rsi,  rsi
   call  print
 
-  lea   rdi,  [rel usg2]  ; " <FILE>"
+  lea   rdi,  usg2    ; " <FILE>"
   xor   rsi,  rsi
-  inc   rsi
   call  print
 
   xor   rdi,  rdi
@@ -65,7 +64,7 @@ usage:
 
 section   .data
   usg1  db  "Usage: ", 0x00
-  usg2  db  " <FILE>"
+  usg2  db  " <FILE>", 0x0A, 0x00
   num   dd  420
   txt   db  "This is a silly number: ", 0x00
 

@@ -100,7 +100,10 @@ print_newline_add:
   mov   byte [rbx+rax], 0x0A
 
 print_out:
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   add   rax,  0x02        ; so it prints the \n\0
+                          ; this works with numbers... not with other stuff
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   mov   rdx,  rax         ; len
   mov   rsi,  rdi         ; buf ptr
   xor   rdi,  rdi
