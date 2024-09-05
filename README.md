@@ -14,7 +14,7 @@
 
 ## Function List 
 
-- ITOA (decimal)
+- ITOA (decimal, hex)
 - PRINT
 - PRINTN
 

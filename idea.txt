@@ -1,0 +1,14 @@
+Usage output:
+
+POP   RAX ; ARGC    <-- [+0x0000]
+POP   RAX ; ARGV[0] <-- [+0x0008]
+POP   RAX ; ARGV[1] <-- [+0x0010]
+
+TEST  RAX, RAX
+JZ    USAGE
+
+; OPEN FILE FOR READING
+
+
+USAGE: 
+; PRINT ERR MSG  

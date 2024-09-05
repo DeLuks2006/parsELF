@@ -4,6 +4,11 @@ section .text
 
 global  _start
 _start:
+; CHECK ARGC
+  pop   rax
+  cmp   rax, 2
+  jne   usage
+
 ; ITOA (edi *num, rsi &buf, rdx sz_buf)
   mov   edi, [rel num]  ; mov number to edi
   lea   rsi, buf        ; mov buffer to esi
@@ -40,7 +45,27 @@ exit:
   mov   rax,  0x3c      ; sys_exit
   syscall
 
+usage:
+  lea   rdi,  [rel usg1]  ; "Usage: "
+  xor   rsi,  rsi
+  call  print
+
+  pop   rdi               ; argv[0]
+  xor   rsi,  rsi
+  call  print
+
+  lea   rdi,  [rel usg2]  ; " <FILE>"
+  xor   rsi,  rsi
+  inc   rsi
+  call  print
+
+  xor   rdi,  rdi
+  mov   rax,  0x3c
+  syscall
+
 section   .data
+  usg1  db  "Usage: ", 0x00
+  usg2  db  " <FILE>"
   num   dd  420
   txt   db  "This is a silly number: ", 0x00
 
