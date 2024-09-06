@@ -21,19 +21,19 @@ _start:
   test  rax,  rax       ; check retval
   jnz   exit
 
-; PRINT (rdi *buf, rsi newline)
+; PRINT (rdi *buf)
   lea   rdi, [rel buf]  ; buf ptr
   mov   rsi, 0x01       ; newline
-  call  print
+  call  printn
   add   rsp, 0x0c
 
   test  rax, rax
   jnz   exit
 
-; PRINTN (rdi *txt, rsi *num)
+; PRINTC (rdi *txt, rsi *num)
   lea   rdi, [rel txt]
   lea   rsi, [rel buf]
-  call  printn
+  call  printc
   add   rsp, 0x0c
 
   test  rax, rax
@@ -56,7 +56,7 @@ usage:
 
   lea   rdi,  usg2    ; " <FILE>"
   xor   rsi,  rsi
-  call  print
+  call  printn
 
   xor   rdi,  rdi
   mov   rax,  0x3c

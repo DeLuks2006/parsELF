@@ -92,18 +92,6 @@ print_len:
 print_len_done:
   sub   rax,  rbx         ; get len
 
-  cmp   rsi, 0x01         ; check if we want newline
-  je    print_newline_add
-  jmp   print_out
-
-print_newline_add:
-  mov   byte [rbx+rax], 0x0A
-
-print_out:
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  add   rax,  0x02        ; so it prints the \n\0
-                          ; this works with numbers... not with other stuff
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   mov   rdx,  rax         ; len
   mov   rsi,  rdi         ; buf ptr
   xor   rdi,  rdi
@@ -118,25 +106,41 @@ print_out:
   ret
 
 ; PRINTN --------------------------------------------------------------------
-; prints some text and then a number
+; prints some text and then a newline
 
 printn:
   push  rbp
   mov   rbp,  rsp
   
-  ; RDI = STRING
-  ; RSI = NUMBER + \n
-
-  push  rsi
-  xor   rsi,  rsi
   call  print
 
-  pop   rdi
-  xor   rsi, rsi
-  inc   rsi
-  call  print
+  mov   rdx,  0x02
+  push  0x0A
+  mov   rsi,  rsp  
+  mov   rdi,  0x01
+  mov   rax,  0x01
+  syscall
 
   xor   rax,  rax
   mov   rsp,  rbp
   pop   rbp
   ret
+  
+; PRINTC --------------------------------------------------------------------
+; prints rdi, then rsi and adds a newline
+
+printc:
+  push  rbp
+  mov   rbp,  rsp
+
+  push  rsi   ; save num
+  call  print
+
+  pop   rdi   ; get old num
+  call  printn
+
+  xor   rax,  rax
+  mov   rsp,  rbp
+  pop   rbp
+  ret
+  
