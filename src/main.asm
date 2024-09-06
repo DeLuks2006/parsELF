@@ -9,40 +9,55 @@ _start:
   cmp   rax, 2
   jne   usage
 
-; ITOA (edi *num, rsi &buf, rdx sz_buf)
-  mov   edi, [rel num]  ; mov number to edi
-  lea   rsi, buf        ; mov buffer to esi
-  mov   rdx, 0x10       ; mov buffer size to rdx
-  mov   r10, 0x02       ; base (1 = 10, 2 = 16)
-  call  itoa            ; call itoa
-
-  add   rsp, 0x0C       ; clean up stack
-
-  test  rax,  rax       ; check retval
-  jnz   exit
-
-; PRINT (rdi *buf)
-  lea   rdi, [rel buf]  ; buf ptr
-  mov   rsi, 0x01       ; newline
+  pop   rax           ; skip argv[0]
+  pop   rdi           ; rdi = argv[1]
+  push  rdi           ; save it for later...
   call  printn
-  add   rsp, 0x0c
 
-  test  rax, rax
-  jnz   exit
+; OPEN SAID FILE
+  pop   rdi           ; filename
+  ;xor   rsi,  rsi     ; flags = O_RDONLY (0)
+  mov   rsi,  0x01    ; tmp
+  mov   rax,  0x02    ; 2 = open
+  syscall
 
-; PRINTC (rdi *txt, rsi *num)
-  lea   rdi, [rel txt]
-  lea   rsi, [rel buf]
+  cmp   rax,  0x00    ; check for error
+  jle   exit
+
+; TODO:
+; - read header
+; - throw that data into the struct
+; - print some data
+; - be the coolest mf in the world
+
+; ~ ~ ~ ~ ~ ~ ~ ~ TMP ~ ~ ~ ~ ~ ~ ~ ~
+
+  push  rax
+  mov   edi,  eax     ; num
+  lea   rsi,  buf     ; buf ptr
+  mov   rdx,  0x10    ; sizeof buf
+  mov   r10,  0x02    ; dec or hex
+  call  itoa
+
+  lea   rdi,  [rel tmp]
+  lea   rsi,  [rel buf]
   call  printc
-  add   rsp, 0x0c
 
-  test  rax, rax
-  jnz   exit
+  pop   rdi
+  lea   rsi,  [rel usg2]
+  mov   rdx,  0x08
+  mov   rax,  0x01
+  syscall
+
+; ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+  mov   rax, 0x03
+  syscall
 
 ; EXIT
 exit:
-  xor   rdi,  rdi       ; retval
-  mov   rax,  0x3c      ; sys_exit
+  xor   rdi,  rdi     ; retval
+  mov   rax,  0x3c    ; sys_exit
   syscall
 
 usage:
@@ -65,10 +80,10 @@ usage:
 section   .data
   usg1  db  "Usage: ", 0x00
   usg2  db  " <FILE>", 0x0A, 0x00
-  num   dd  420
-  txt   db  "This is a silly number: ", 0x00
 
   elfh  istruc elf64_hdr iend 
+
+  tmp   db  "FD : ", 0x00
 
 section   .bss
   buf   resb  0x10
