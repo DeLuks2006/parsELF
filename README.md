@@ -14,9 +14,10 @@
 
 ## Function List 
 
-- ITOA (decimal, hex)
-- PRINT
-- PRINTN
+- ITOA      - converts num to ASCII (decimal, hex)
+- PRINT     - prints some text
+- PRINTN    - prints some text and a newline
+- PRINTC    - calls print and then printn
 
 ## About:
 
