@@ -9,49 +9,56 @@ _start:
   cmp   rax, 2
   jne   usage
 
-  pop   rax           ; skip argv[0]
-  pop   rdi           ; rdi = argv[1]
-  push  rdi           ; save it for later...
-  call  printn
+  pop   rax               ; skip argv[0]
+  pop   rsi               ; rdi = argv[1]
+  push  rsi               ; save it for later...
+  lea   rdi,  [rel info]
+  call  printc
 
 ; OPEN SAID FILE
-  pop   rdi           ; filename
-  ;xor   rsi,  rsi     ; flags = O_RDONLY (0)
-  mov   rsi,  0x01    ; tmp
-  mov   rax,  0x02    ; 2 = open
+  pop   rdi               ; filename
+  xor   rsi,  rsi         ; flags = O_RDONLY (0)
+  mov   rax,  0x02        ; 2 = open
   syscall
 
-  cmp   rax,  0x00    ; check for error
+  cmp   rax,  0x00        ; check for error
   jle   exit
 
+  mov   [fd], rax         ; store fd
+
 ; TODO:
-; - read header
-; - throw that data into the struct
 ; - print some data
 ; - be the coolest mf in the world
 
-; ~ ~ ~ ~ ~ ~ ~ ~ TMP ~ ~ ~ ~ ~ ~ ~ ~
+; READ MAGIC 
+  mov   rdi,  [fd]            ; fd
+  lea   rsi,  elfh            ; read into this buffer
+  mov   rdx,  elf64_hdr_size  ; read 4 bytes
+  mov   rax,  0x00            ; sys_read
+  syscall
 
-  push  rax
-  mov   edi,  eax     ; num
-  lea   rsi,  buf     ; buf ptr
-  mov   rdx,  0x10    ; sizeof buf
-  mov   r10,  0x02    ; dec or hex
-  call  itoa
+  cmp   rax,  elf64_hdr_size 
+  jne   close
 
-  lea   rdi,  [rel tmp]
-  lea   rsi,  [rel buf]
-  call  printc
+  lea   rdi,  [rel magic]
+  call  print
 
-  pop   rdi
-  lea   rsi,  [rel usg2]
-  mov   rdx,  0x08
+  mov   rdi,  0x01  ; fd = stdout
+  lea   rsi,  elfh  ; buf
+  mov   rdx,  0x04  ; count
+  mov   rax,  0x01  ; sys_write
+  syscall
+
+  mov   rdi,  0x01
+  push  0x0A
+  mov   rsi,  rsp
+  mov   rdx,  0x02
   mov   rax,  0x01
   syscall
 
-; ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-
-  mov   rax, 0x03
+close:
+  mov   rdi, [fd]     ; our FD
+  mov   rax, 0x03     ; sys_close
   syscall
 
 ; EXIT
@@ -78,18 +85,22 @@ usage:
   syscall
 
 section   .data
+; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
   usg1  db  "Usage: ", 0x00
   usg2  db  " <FILE>", 0x0A, 0x00
 
-  elfh  istruc elf64_hdr iend 
+  info  db  "Opening: ", 0x00
 
-  tmp   db  "FD : ", 0x00
+  magic db  "Magic: ", 0x00
+
+; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 section   .bss
-  buf   resb  0x10
+  fd    resq  0x01            ; space for our FD
+  elfh  resb  elf64_hdr_size  ;(0x40)  ; sizeof 64bit header
 
   ; define struct
-  struc elf64_hdr
+struc elf64_hdr
   .e_ident:      resb 0x10
   .e_type:       resw 0x01
   .e_machine:    resw 0x01
@@ -104,7 +115,7 @@ section   .bss
   .e_shentsize:  resw 0x01
   .e_shnum:      resw 0x01
   .e_shstrndx:   resw 0x01
-  endstruc
+endstruc
 
 ; save:
 ; rbx, rsp, rbp, r12-r15
