@@ -1,8 +1,12 @@
+; TODO: 
+; - print byte by byte function
+; - check if proper elf magic bytes
+
 %include "src/std.asm"
 
 section .text
-
 global  _start
+
 _start:
 ; CHECK ARGC
   pop   rax
@@ -25,10 +29,6 @@ _start:
   jle   exit
 
   mov   [fd], rax         ; store fd
-
-; TODO:
-; - print some data
-; - be the coolest mf in the world
 
 ; READ MAGIC 
   mov   rdi,  [fd]            ; fd
