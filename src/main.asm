@@ -86,18 +86,18 @@ usage:
 
 section   .data
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+  ; USAGE
   usg1  db  "Usage: ", 0x00
   usg2  db  " <FILE>", 0x0A, 0x00
 
   info  db  "Opening: ", 0x00
-
   magic db  "Magic: ", 0x00
 
 ; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 section   .bss
   fd    resq  0x01            ; space for our FD
-  elfh  resb  elf64_hdr_size  ;(0x40)  ; sizeof 64bit header
+  elfh  resb  elf64_hdr_size  ; sizeof 64bit header
 
   ; define struct
 struc elf64_hdr

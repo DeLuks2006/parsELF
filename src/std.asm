@@ -2,8 +2,8 @@
 ; THIS IS A FILE WITH BASIC/STANDARD FUNCTIONALITY TO MAKE MY LIFE EASIER
 
 ; ITOA ----------------------------------------------------------------------
+; INT TO ASCII
 ; converts a number to decimal representation in ASCII
-; TODO: Implement so it converts to hex instead of decimal
 
 itoa:
   push  rbp
@@ -48,7 +48,7 @@ itoa_exit_calc:
   mov   rax,  rcx       ; save value in rax
   dec   rcx             ; get our old value back
 
-  cmp   rax, [rbp-0x08] ; cmp buf size with our len
+cmp   rax, [rbp-0x08] ; cmp buf size with our len
   jge   itoa_buf_overflow
 
 itoa_buf_loop:
@@ -106,6 +106,7 @@ print_len_done:
   ret
 
 ; PRINTN --------------------------------------------------------------------
+; PRINT NEWLINE
 ; prints some text and then a newline
 
 printn:
@@ -127,6 +128,7 @@ printn:
   ret
   
 ; PRINTC --------------------------------------------------------------------
+; PRINT COMBO
 ; prints rdi, then rsi and adds a newline
 
 printc:
@@ -143,4 +145,93 @@ printc:
   mov   rsp,  rbp
   pop   rbp
   ret
-  
+
+; PRINTH --------------------------------------------------------------------
+; PRINT HEX
+; prints hexdump like output
+
+; read 1 byte N times; 
+; each iteration, 
+; itoa to hex
+; add to stack var
+; print
+
+; args: rdi fd, rsi offset, rdx no_of_bytes
+
+printh:
+  push  rbp
+  mov   rbp,  rsp
+  sub   rbp,  0x04  ; place for our byte/num
+  sub   rbp,  0x04  ; buf
+
+  push  rdx
+  mov   rcx,  rdx   ; COUNTER
+  xor   r9,  r9
+  mov   r11,  rdi   ; FD
+
+  ; CALL LSEEK -> SET TO OFFSET
+  mov   rdx,  0x01  ; SEEK_SET
+  mov   rax,  0x08  ; SYS_LSEEK
+  syscall
+
+printh_loop:
+  ; read byte
+  mov   rdi,  r11         ; FD
+  lea   rsi,  [rbp-0x04]  ; BUF
+  mov   rdx,  0x01        ; NUM
+  xor   rax,  rax         ; SYS_READ
+  syscall
+
+  ; itoa
+  mov   rdi,  [rbp-0x04]  ; NUMBER
+  lea   rsi,  [rbp-0x08]  ; BUFFER
+  mov   rdx,  0x04        ; SIZE
+  mov   r10,  0x02        ; BASE    (DEC = 1; HEX = 2)
+  call  itoa
+
+  ; print
+  lea   rdi,  [rbp-0x08]  ; BUFFER
+  push  rsi
+  call  print
+
+  ; write " "
+  mov   rdi,  0x01        ; STDOUT
+  push  0x14              ; SPACE
+  mov   rsi,  rsp         ; BUF
+  mov   rdx,  0x02        ; LEN
+  mov   rax,  0x01
+  syscall
+
+  pop   rax
+
+  inc   r9
+
+  ; lseek
+  mov   rdi,  r11   ; FD
+  pop   rsi
+  add   rsi,  r9
+  mov   rdx,  0x01  ; SEEK_SET
+  mov   rax,  0x08  ; LSEEK
+
+  cmp   r9,   rcx
+  jle   printh_loop
+
+  mov   rdi,  0x01
+  push  0x0A
+  mov   rsi,  rsp
+  mov   rdx,  0x02
+  mov   rax,  0x01
+  syscall
+
+  ; call lseek -> set to beginning
+  mov   rdi,  r11
+  xor   rsi,  rsi
+  xor   rdx,  rdx
+  inc   rdx
+  mov   rax,  0x08
+  syscall
+
+  xor   rax,  rax
+  mov   rsp,  rbp
+  pop   rbp
+  ret
