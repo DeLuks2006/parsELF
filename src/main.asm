@@ -43,6 +43,12 @@ _start:
   lea   rdi,  [rel magic]
   call  print
 
+  ; PRINTH
+  mov   rdi,  [fd]
+  mov   rsi,  0x00
+  mov   rdx,  0x04
+  call  printh
+
   mov   rdi,  0x01  ; fd = stdout
   lea   rsi,  elfh  ; buf
   mov   rdx,  0x04  ; count

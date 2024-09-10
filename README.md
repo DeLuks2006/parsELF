@@ -23,3 +23,6 @@
 
 This *bombastic ELF parser* is just a little project to get comfortable with assembly and ELF files. 
 Also this kind of project was suggested for me to do by bextr and other members of tmpout!
+
+## Issues
+- PRINTH stuck in infinite loop and ITOA fails, needs proper error handling and stuff
