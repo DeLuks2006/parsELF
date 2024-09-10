@@ -43,7 +43,7 @@ _start:
   lea   rdi,  [rel magic]
   call  print
 
-  ; PRINTH
+  ; PRINTH (if you see this, this doesnt work)
   mov   rdi,  [fd]
   mov   rsi,  0x00
   mov   rdx,  0x04
@@ -57,6 +57,7 @@ _start:
 
   mov   rdi,  0x01
   push  0x0A
+
   mov   rsi,  rsp
   mov   rdx,  0x02
   mov   rax,  0x01
