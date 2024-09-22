@@ -32,7 +32,7 @@ _start:
 
 ; READ MAGIC 
   mov   rdi,  [fd]            ; fd
-  lea   rsi,  elfh            ; read into this buffer
+  lea   rsi,  [elfh]          ; read into this buffer
   mov   rdx,  elf64_hdr_size  ; read 4 bytes
   mov   rax,  0x00            ; sys_read
   syscall
@@ -49,15 +49,14 @@ _start:
   mov   rdx,  0x04
   call  printh
 
-  mov   rdi,  0x01  ; fd = stdout
-  lea   rsi,  elfh  ; buf
-  mov   rdx,  0x04  ; count
-  mov   rax,  0x01  ; sys_write
-  syscall
+;  mov   rdi,  0x01  ; fd = stdout
+;  lea   rsi,  elfh  ; buf
+;  mov   rdx,  0x04  ; count
+;  mov   rax,  0x01  ; sys_write
+;  syscall
 
   mov   rdi,  0x01
   push  0x0A
-
   mov   rsi,  rsp
   mov   rdx,  0x02
   mov   rax,  0x01
@@ -88,6 +87,7 @@ usage:
   call  printn
 
   xor   rdi,  rdi
+  inc   rdi
   mov   rax,  0x3c
   syscall
 

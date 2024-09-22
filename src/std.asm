@@ -48,7 +48,7 @@ itoa_exit_calc:
   mov   rax,  rcx       ; save value in rax
   dec   rcx             ; get our old value back
 
-cmp   rax, [rbp-0x08] ; cmp buf size with our len
+  cmp   rax, [rbp-0x08] ; cmp buf size with our len
   jge   itoa_buf_overflow
 
 itoa_buf_loop:
@@ -150,86 +150,62 @@ printc:
 ; PRINT HEX
 ; prints hexdump like output
 
-; read 1 byte N times; 
-; each iteration, 
-; itoa to hex
-; add to stack var
-; print
-
 ; args: rdi fd, rsi offset, rdx no_of_bytes
 
 printh:
   push  rbp
   mov   rbp,  rsp
-  sub   rbp,  0x04  ; place for our byte/num
-  sub   rbp,  0x04  ; buf
+  sub   rbp,  0x20      ; alloc space
+  sub   rbp,  rdx
 
-  push  rdx
-  mov   rcx,  rdx   ; COUNTER
-  xor   r9,  r9
-  mov   r11,  rdi   ; FD
+  ;- VARIABLES ----------------------;
+  ; rbp-0x08 = fd                    ;
+  ; rbp-0x10 = offset                ; 
+  ; rbp-0x18 = count                 ;
+  ; rbp-0x20 = byte                  ;
+  ; rbp-0x?? = buff   ( 0x20 + rdx ) ;
+  ; rcx = n                          ;
+  ;----------------------------------;
 
-  ; CALL LSEEK -> SET TO OFFSET
-  mov   rdx,  0x01  ; SEEK_SET
-  mov   rax,  0x08  ; SYS_LSEEK
+  mov   [rbp-0x08], rdi ; fd
+  mov   [rbp-0x10], rsi ; offset
+  mov   [rbp-0x18], rdx ; no of bytes
+  
+; lseek(fd, offset, SEEK_SET);
+  mov   rdi,  [rbp-0x08]  ; FD
+  mov   rsi,  [rbp-0x10]  ; OFFSET
+  xor   rdx,  rdx         ; SEEK_SET
+  mov   rax,  0x08        ; LSEEK
   syscall
 
+; read(fd, buffer, length);
+  mov   rdi,  [rbp-0x08]      ; FD
+  mov   rdx,  [rbp-0x18]      ; COUNT
+  ; at this point i feel like im writing bs
+  ; so i stop
+  mov   rsi,  [rbp-rdx-0x20]  ; BUF
+  xor   rax,  rax             ; READ
+  syscall
+
+  xor   rcx,  rcx
 printh_loop:
-  ; read byte
-  mov   rdi,  r11         ; FD
-  lea   rsi,  [rbp-0x04]  ; BUF
-  mov   rdx,  0x01        ; NUM
-  xor   rax,  rax         ; SYS_READ
-  syscall
-
-  ; itoa
-  mov   rdi,  [rbp-0x04]  ; NUMBER
-  lea   rsi,  [rbp-0x08]  ; BUFFER
-  mov   rdx,  0x04        ; SIZE
-  mov   r10,  0x02        ; BASE    (DEC = 1; HEX = 2)
-  call  itoa
-
-  ; print
-  lea   rdi,  [rbp-0x08]  ; BUFFER
-  push  rsi
-  call  print
-
-  ; write " "
-  mov   rdi,  0x01        ; STDOUT
-  push  0x14              ; SPACE
-  mov   rsi,  rsp         ; BUF
-  mov   rdx,  0x02        ; LEN
-  mov   rax,  0x01
-  syscall
-
-  pop   rax
-
-  inc   r9
-
-  ; lseek
-  mov   rdi,  r11   ; FD
-  pop   rsi
-  add   rsi,  r9
-  mov   rdx,  0x01  ; SEEK_SET
-  mov   rax,  0x08  ; LSEEK
-
-  cmp   r9,   rcx
-  jle   printh_loop
-
-  mov   rdi,  0x01
-  push  0x0A
-  mov   rsi,  rsp
-  mov   rdx,  0x02
-  mov   rax,  0x01
-  syscall
-
-  ; call lseek -> set to beginning
-  mov   rdi,  r11
-  xor   rsi,  rsi
-  xor   rdx,  rdx
-  inc   rdx
-  mov   rax,  0x08
-  syscall
+  mov   rax,  rsi
+  add   rax,  rcx
+  mov   byte  rdx,  [rax]
+;  void print_hex(int fd, int offset, int length) {
+;  --* SNIP *--
+;    loopy_loop:
+;       byte = *buffer + n;
+;       printf("%x", byte);
+;       printf(" ");
+;       n++;
+;
+;       if (n <= length) {
+;         goto loopy_loop;
+;       }
+;
+;    puts("");
+;  }
 
   xor   rax,  rax
   mov   rsp,  rbp
