@@ -105,11 +105,11 @@ print_len_done:
   pop   rbp
   ret
 
-; PRINTN --------------------------------------------------------------------
+; PRINTLN -------------------------------------------------------------------
 ; PRINT NEWLINE
 ; prints some text and then a newline
 
-printn:
+println:
   push  rbp
   mov   rbp,  rsp
   
@@ -139,7 +139,7 @@ printc:
   call  print
 
   pop   rdi   ; get old num
-  call  printn
+  call  println
 
   xor   rax,  rax
   mov   rsp,  rbp

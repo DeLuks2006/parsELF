@@ -84,7 +84,7 @@ usage:
 
   lea   rdi,  usg2    ; " <FILE>"
   xor   rsi,  rsi
-  call  printn
+  call  println
 
   xor   rdi,  rdi
   inc   rdi
