@@ -155,8 +155,8 @@ printc:
 printh:
   push  rbp
   mov   rbp,  rsp
-  sub   rbp,  0x20      ; alloc space
-  sub   rbp,  rdx
+  ; sub   rbp,  0x20      ; alloc space
+  ; sub   rbp,  rdx
 
   ;- VARIABLES ----------------------;
   ; rbp-0x08 = fd                    ;
@@ -167,31 +167,10 @@ printh:
   ; rcx = n                          ;
   ;----------------------------------;
 
-  mov   [rbp-0x08], rdi ; fd
-  mov   [rbp-0x10], rsi ; offset
-  mov   [rbp-0x18], rdx ; no of bytes
-  
-; lseek(fd, offset, SEEK_SET);
-  mov   rdi,  [rbp-0x08]  ; FD
-  mov   rsi,  [rbp-0x10]  ; OFFSET
-  xor   rdx,  rdx         ; SEEK_SET
-  mov   rax,  0x08        ; LSEEK
-  syscall
+  ; mov   [rbp-0x08], rdi ; fd
+  ; mov   [rbp-0x10], rsi ; offset
+  ; mov   [rbp-0x18], rdx ; no of bytes
 
-; read(fd, buffer, length);
-  mov   rdi,  [rbp-0x08]      ; FD
-  mov   rdx,  [rbp-0x18]      ; COUNT
-  ; at this point i feel like im writing bs
-  ; so i stop
-  mov   rsi,  [rbp-rdx-0x20]  ; BUF
-  xor   rax,  rax             ; READ
-  syscall
-
-  xor   rcx,  rcx
-printh_loop:
-  mov   rax,  rsi
-  add   rax,  rcx
-  mov   byte  rdx,  [rax]
 ;  void print_hex(int fd, int offset, int length) {
 ;  --* SNIP *--
 ;    loopy_loop:
