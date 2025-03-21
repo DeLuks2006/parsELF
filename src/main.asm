@@ -58,15 +58,8 @@ _start:
   open  [filename], O_RDONLY
   mov   [fd], rax
 
-  ; MMAP(NULL, st.size, PROT_READ, MAP_PRIVATE, fd, 0);
-  xor   rdi,  rdi                       ; NULL
-  mov   rsi,  [st_stat + stat.st_size]  ; st.size
-  mov   rdx,  PROT_READ                 ; PROT_READ
-  mov   r10,  MAP_PRIVATE               ; MAP_PRIVATE
-  mov   r8,   [fd]                      ; fd
-  xor   r9,   r9                        ; 0
-  mov   rax,  SYS_MMAP
-  syscall
+  ; mmap(MyStruct, fd)
+  mmap  st_stat, [fd] ; MMAP(NULL, st.size, PROT_READ, MAP_PRIVATE, fd, 0);
 
   mov   [ptr_buffer], rax ; move pointer in rax to var that holds ptr
 
@@ -81,11 +74,7 @@ _start:
 
   ; UNMAP THE FILE
   ; MUNMAP(file, st.size)
-  lea   r12,  [ptr_buffer]
-  mov   rdi,  [r12]
-  mov   rsi,  [st_stat + stat.st_size]
-  mov   rax,  0x0B ; <- SYS_MUNMAP
-  syscall
+  munmap  [ptr_buffer], st_stat
 
 ; EXIT
 exit:

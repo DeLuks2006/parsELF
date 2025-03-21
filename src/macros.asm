@@ -1,10 +1,11 @@
 ; SYSCALLS -------------------------------------------------------------------
-%define SYS_OPEN  0x02
-%define SYS_CLOSE 0x03
-%define SYS_STAT  0x04
-%define SYS_MMAP  0x09
+%define SYS_OPEN    0x02
+%define SYS_CLOSE   0x03
+%define SYS_STAT    0x04
+%define SYS_MMAP    0x09
+%define SYS_MUNMAP  0x0B
 
-%define SYS_EXIT  0x3c
+%define SYS_EXIT    0x3c
 
 ; FLAGS ----------------------------------------------------------------------
 ; open specific
@@ -34,3 +35,24 @@
   mov   rax,  SYS_STAT
   syscall
 %endmacro
+
+; mmap( struct, fd )
+%macro mmap 2
+  xor   rdi,  rdi                 ; NULL
+  mov   rsi,  [%1 + stat.st_size] ; st_size
+  mov   rdx,  PROT_READ           ; PROT_READ
+  mov   r10,  MAP_PRIVATE         ; MAP_PRIVATE
+  mov   r8,   %2                  ; fd
+  xor   r9,   r9                  ; 0
+  mov   rax,  SYS_MMAP
+  syscall
+%endmacro
+
+; munmap(
+%macro munmap 2
+  mov   rdi,  %1
+  mov   rsi,  [%2 + stat.st_size]
+  mov   rax,  SYS_MUNMAP
+  syscall
+%endmacro
+
