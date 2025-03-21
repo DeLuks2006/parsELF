@@ -1,23 +1,26 @@
 ; THIS FILE IS INTENDED FOR STRUCT DEFINITIONS
 
 ; yes I generated this structure with AI because I am lazy
+
+
 struc stat
-    .st_dev         resq 1  ; Device ID
-    .st_ino         resq 1  ; Inode number
-    .st_nlink       resq 1  ; Number of hard links
-    .st_mode        resd 1  ; File mode (permissions)
-    .st_uid         resd 1  ; User ID of owner
-    .st_gid         resd 1  ; Group ID of owner
-    .st_rdev        resq 1  ; Device ID (if special file)
-    .st_size        resq 1  ; File size in bytes
-    .st_blksize     resq 1  ; Block size for filesystem I/O
-    .st_blocks      resq 1  ; Number of blocks allocated
-    .st_atime       resq 1  ; Last access time (seconds)
-    .st_atime_nsec  resq 1  ; Nanoseconds part of atime
-    .st_mtime       resq 1  ; Last modification time (seconds)
-    .st_mtime_nsec  resq 1  ; Nanoseconds part of mtime
-    .st_ctime       resq 1  ; Last status change time (seconds)
-    .st_ctime_nsec  resq 1  ; Nanoseconds part of ctime
+    .st_dev         resq 1
+    .st_ino         resq 1
+    .st_nlink       resq 1
+    .st_mode        resd 1
+    .st_uid         resd 1
+    .st_gid         resd 1
+    .padding        resb 4
+    .st_rdev        resq 1
+    .st_size        resq 1
+    .st_blksize     resq 1
+    .st_blocks      resq 1
+    .st_atime       resq 1
+    .st_atime_nsec  resq 1
+    .st_mtime       resq 1
+    .st_mtime_nsec  resq 1
+    .st_ctime       resq 1
+    .st_ctime_nsec  resq 1
 endstruc
 
 %define STAT_SIZE 16

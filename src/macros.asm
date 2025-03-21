@@ -2,11 +2,16 @@
 %define SYS_OPEN  0x02
 %define SYS_CLOSE 0x03
 %define SYS_STAT  0x04
+%define SYS_MMAP  0x09
 
 %define SYS_EXIT  0x3c
 
 ; FLAGS ----------------------------------------------------------------------
-%define O_RDONLY  0       ; read-only flag
+; open specific
+%define O_RDONLY    0x00  ; read-only flag
+; mmap specific
+%define PROT_READ   0x01
+%define MAP_PRIVATE 0x02
 
 ; WRAPPERS -------------------------------------------------------------------
 %macro open 2           ; open(filename, flags)

@@ -10,11 +10,5 @@ all:
 	@echo "[#] Linking..."
 	$(LD) -o $(OUT) $(OUT).o
 
-debug:
-	@echo "[#] Assembling..."
-	$(ASM) $(AFLAGS) $(SRC) -o $(OUT).o -g
-	@echo "[#] Linking..."
-	$(LD) -o $(OUT) $(OUT).o -g
-
 clean:
 	rm $(OUT).o $(OUT)

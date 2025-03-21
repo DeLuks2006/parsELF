@@ -11,9 +11,11 @@
 %include "src/std.asm"
 
 section   .bss
-  filename  resq 1
-  fd        resq 1
-  st_stat   resq STAT_SIZE
+  filename    resq 1
+  filesize    resq 1
+  fd          resq 1
+  ptr_buffer  resq 1
+  st_stat     resq STAT_SIZE
 
 section   .data
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
@@ -53,10 +55,20 @@ _start:
 ; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPOR
 
   ; OPEN(filename, O_RDONLY);
-  open  filename, O_RDONLY
+  open  [filename], O_RDONLY
   mov   [fd], rax
 
   ; MMAP(NULL, st.size, PROT_READ, MAP_PRIVATE, fd, 0);
+  xor   rdi,  rdi                       ; NULL
+  mov   rsi,  [st_stat + stat.st_size]  ; st.size
+  mov   rdx,  PROT_READ                 ; PROT_READ
+  mov   r10,  MAP_PRIVATE               ; MAP_PRIVATE
+  mov   r8,   [fd]                      ; fd
+  xor   r9,   r9                        ; 0
+  mov   rax,  SYS_MMAP
+  syscall
+
+  mov   [ptr_buffer], rax ; move pointer in rax to var that holds ptr
 
   ; PRINTH (if you see this, this doesnt work)
   ; mov   rdi,  [fd]
@@ -64,11 +76,16 @@ _start:
   ; mov   rdx,  0x04
   ; call  printh
 
+  ; CLOSE(fd);
+  close [fd]
+
   ; UNMAP THE FILE
   ; MUNMAP(file, st.size)
-
-  ; CLOSE(fd);
-  close fd
+  lea   r12,  [ptr_buffer]
+  mov   rdi,  [r12]
+  mov   rsi,  [st_stat + stat.st_size]
+  mov   rax,  0x0B ; <- SYS_MUNMAP
+  syscall
 
 ; EXIT
 exit:
