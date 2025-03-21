@@ -11,8 +11,9 @@
 %include "src/std.asm"
 
 section   .bss
-  filename resq 1
-  fd       resq 1
+  filename  resq 1
+  fd        resq 1
+  st_stat   resq STAT_SIZE
 
 section   .data
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
@@ -32,18 +33,24 @@ global  _start
 
 _start:
 ; CHECK ARGC
-  pop   rax
-  cmp   rax, 2
-  jne   usage
+  pop   rax                 ; shove argc into RAX
+  cmp   rax, 2              ; if argc != 2
+  jne   usage               ; go to usage prompt :)
 
-  mov   rsi, [rsp + 0x08]   ; rdi = argv[1]
-  mov   [filename], rsi     ; save for later...
+  lea   rdi,  [rel info]    ; rdi = "opening ..."
+  mov   rsi,  [rsp + 0x08]  ; rsi = argv[1]
 
-  lea   rdi,  [rel info]
-  call  printc
+  mov   [filename], rsi     ; filename = argv[1] (RSI), so we can use it later
 
-  ; struct stat st_stat;
-  ; STAT(filename, &st_stat);
+  call  printc              ; printc = "print combo"- should've named it 
+                            ;          printf or something... :P
+
+  read_stat   [filename], st_stat
+
+; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPOR
+;  mov   rdi,  [st_stat + stat.st_size]
+;  jmp   exit
+; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPOR
 
   ; OPEN(filename, O_RDONLY);
   open  filename, O_RDONLY
@@ -60,27 +67,23 @@ _start:
   ; UNMAP THE FILE
   ; MUNMAP(file, st.size)
 
-  ; CLOSE THE FILE
   ; CLOSE(fd);
   close fd
 
 ; EXIT
 exit:
-  xor   rdi,  rdi     ; retval
-  mov   rax,  0x3c    ; sys_exit
+  xor   rdi,  rdi       ; retval
+  mov   rax,  SYS_EXIT  ; sys_exit
   syscall
 
 usage:
-  lea   rdi,  usg1    ; "Usage: "
-  xor   rsi,  rsi
+  lea   rdi,  usg1      ; "Usage: "
   call  print
 
-  pop   rdi           ; argv[0]
-  xor   rsi,  rsi
+  pop   rdi             ; argv[0]
   call  print
 
-  lea   rdi,  usg2    ; " <FILE>"
-  xor   rsi,  rsi
+  lea   rdi,  usg2      ; " <FILE>"
   call  println
 
   xor   rdi,  rdi

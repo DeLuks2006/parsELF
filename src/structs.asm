@@ -20,6 +20,8 @@ struc stat
     .st_ctime_nsec  resq 1  ; Nanoseconds part of ctime
 endstruc
 
+%define STAT_SIZE 16
+
 ; this one I did manually!!
 struc elf64_hdr
     .e_ident        resb 0x10 ; ELF Magic and other good stuff :)

@@ -80,11 +80,13 @@ print:
   push  rbp
   mov   rbp,  rsp
 
-  mov   rax, rdi
-  mov   rbx, rdi
+  xor   rsi,  rsi
+
+  mov   rax,  rdi
+  mov   rbx,  rdi
 
 print_len:
-  cmp   byte [rax], 0x00  ; check if \0
+  cmp   byte  [rax], 0x00 ; check if \0
   jz    print_len_done    ; if so jump
   inc   rax               ; inc ptr
   jmp   print_len         ; LOOP
@@ -112,8 +114,10 @@ print_len_done:
 println:
   push  rbp
   mov   rbp,  rsp
-  
+
   call  print
+
+  xor   rsi,  rsi
 
   mov   rdx,  0x02
   push  0x0A
