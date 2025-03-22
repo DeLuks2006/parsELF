@@ -42,3 +42,5 @@ struc elf64_hdr
     .e_shnum        resw 0x01 ; num of section headers
     .e_shstrndx     resw 0x01 ; section header string table index
 endstruc
+
+%define ELFHDR_SIZE 64

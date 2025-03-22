@@ -11,4 +11,4 @@ all:
 	$(LD) -o $(OUT) $(OUT).o
 
 clean:
-	rm $(OUT).o $(OUT)
+	rm $(OUT).o -f $(OUT)

@@ -3,82 +3,139 @@
 ; - print_hex
 ; - check if proper elf magic bytes
 
-; save:
-; rbx, rsp, rbp, r12-r15
-
 %include "src/macros.asm"
 %include "src/structs.asm"
 %include "src/std.asm"
 
 section   .bss
-  filename    resq 1
-  filesize    resq 1
-  fd          resq 1
-  ptr_buffer  resq 1
-  st_stat     resq STAT_SIZE
+; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
+  filename    resq  1
+  filesize    resq  1
+  fd          resq  1
+  mapped_bin  resq  1
+  st_stat     resq  STAT_SIZE
+  st_elfhdr   resb  ELFHDR_SIZE
 
 section   .data
+; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
+  valid_magic db  0x7f, 0x45, 0x4c, 0x46
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
   ; USAGE
   usg1  db  "Usage: ", 0x00
   usg2  db  " <FILE>", 0x0A, 0x00
 
+  ; INFO
   info  db  "Opening: ", 0x00
-  magic db  "Magic: ", 0x00
 
-; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
+  ; ERROR
+  err_small db  "[x] Filesize too small (this time size DOES MATTER)", 0x0A, 0x00
+  err_magic db  "[x] Invalid ELF magic :P", 0x0A, 0x00
 
-; other stuff...
+  ; ELF HDR
+  elf_banner  db  "______________________________________[ ELF_HEADER ]", 0x00
+  elf_magic   db  "Magic: ", 0x00
+  elf_format  db  "Format (32 or 64bit): ", 0x00
+  elf_endian  db  "Endian: ", 0x00
+  elf_version db  "Version: ", 0x00
+  elf_trgt_os db  "Target OS: ", 0x00
+  elf_trgt_v  db  "Target Version: ", 0x00
+  ; filetype: ET_DYN, ET_EXEC, ...
+  ; instr_set: MIPS, RISCV, x86
+  ; entry: ???
+  ; phoff: ???
+  ; shoff: ???
+  ; flags ...
+  ; ehsize: size of this header (64)
+  ; phentsize: prog_hdr size
+  ; phnum: len(prog_hdrs) 
+  ; shentsize: section_hdr size
+  ; shnum: len(section_hdrs)
+  ; shstrndx: section hdr string table idx
+
+
 
 section .text
 global  _start
 
 _start:
 ; CHECK ARGC
-  pop   rax                 ; shove argc into RAX
-  cmp   rax, 2              ; if argc != 2
-  jne   usage               ; go to usage prompt :)
+  pop   rax                 ; Shove argc into RAX
+  cmp   rax, 2              ; If argc != 2
+  jne   usage               ; Go to usage prompt :)
 
   lea   rdi,  [rel info]    ; rdi = "opening ..."
   mov   rsi,  [rsp + 0x08]  ; rsi = argv[1]
 
-  mov   [filename], rsi     ; filename = argv[1] (RSI), so we can use it later
+  mov   [filename], rsi     ; Filename = argv[1]
 
-  call  printc              ; printc = "print combo"- should've named it 
-                            ;          printf or something... :P
+  call  printc              ; Printc = "print combo"
 
+; _______________________________________________________[ READING THE FILE ]_
+
+  ; Open file for reading
+  open  [filename], O_RDONLY  ; OPEN(file, O_RDONLY, 0);
+  mov   [fd], rax             ; Save FD
+
+  ; Read file size
   read_stat   [filename], st_stat
 
-; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPOR
-;  mov   rdi,  [st_stat + stat.st_size]
-;  jmp   exit
-; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPOR
+  ; check if file is big enough to store headers
+  mov   rax,  [st_stat + stat.st_size]
+  mov   rbx,  184 ; minimum filesize = 1 ELF hdr + 1 program hdr + 1 section hdr
+  cmp   rax,  rbx
+  jl    size_error
 
-  ; OPEN(filename, O_RDONLY);
-  open  [filename], O_RDONLY
-  mov   [fd], rax
+  ; Load the file into memory
+  mmap  st_stat, [fd]         ; MMAP(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
+  mov   [mapped_bin], rax     ; Save loaded file in "mapped_bin"
 
-  ; mmap(MyStruct, fd)
-  mmap  st_stat, [fd] ; MMAP(NULL, st.size, PROT_READ, MAP_PRIVATE, fd, 0);
+; _____________________________________________________[ PARSING ELF HEADER ]_
 
-  mov   [ptr_buffer], rax ; move pointer in rax to var that holds ptr
+  ; Load mmap-ed file into struct
+  mov   rsi,  [mapped_bin]    ; src  = mapped_bin
+  mov   rdi,  st_elfhdr       ; dest = st_elfhdr
+  mov   rcx,  ELFHDR_SIZE     ; size = 64
+  rep   movsb
 
-  ; PRINTH (if you see this, this doesnt work)
-  ; mov   rdi,  [fd]
-  ; mov   rsi,  0x00
-  ; mov   rdx,  0x04
-  ; call  printh
+  xor   rax,  rax
+  xor   rbx,  rbx
+  xor   rcx,  rcx
 
+  ; Check if correct magic bytes :)
+  magic_validation:
+    mov   al,  byte [st_elfhdr+rcx]   ; read  byte
+    mov   bl,  byte [valid_magic+rcx] ; valid byte
+    
+    cmp   rax,  rbx
+    jne   magic_error                 ; if invalid, goto cleanup
+
+    inc   rcx
+    cmp   rcx,  0x04
+    jne   magic_validation
+
+  ; Output ELF Banner
+  lea   rdi,  elf_banner
+  call  println
+
+  ; convert magic bytes to ascii
+  ; ...
+
+  ; later do printc "magic: ", elf
+  lea   rdi,  elf_magic
+  call  println
+
+; ___________________________________________________________[ EXIT ROUTINE ]_
+
+cleanup:
   ; CLOSE(fd);
   close [fd]
 
   ; UNMAP THE FILE
-  ; MUNMAP(file, st.size)
-  munmap  [ptr_buffer], st_stat
+  munmap  [mapped_bin], st_stat
 
 ; EXIT
 exit:
-  xor   rdi,  rdi       ; retval
+  xor   rdi,  rdi       ; Return value = 0
   mov   rax,  SYS_EXIT  ; sys_exit
   syscall
 
@@ -91,8 +148,25 @@ usage:
 
   lea   rdi,  usg2      ; " <FILE>"
   call  println
+  jmp   error
 
-  xor   rdi,  rdi
-  inc   rdi
-  mov   rax,  0x3c
+size_error:
+  close [fd]
+  
+  lea   rdi, err_small
+  call  println
+  jmp   error
+
+magic_error:
+  close [fd]
+  munmap  [mapped_bin], st_stat
+
+  lea   rdi,  err_magic
+  call  println
+  jmp   error
+
+error:
+  xor   rdi,  rdi       
+  inc   rdi             ; Return value = 1
+  mov   rax,  SYS_EXIT
   syscall
