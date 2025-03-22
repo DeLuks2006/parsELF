@@ -1,8 +1,6 @@
 ; THIS FILE IS INTENDED FOR STRUCT DEFINITIONS
 
-; yes I generated this structure with AI because I am lazy
-
-
+; This one I stole from TMZ's "Nasty"
 struc stat
     .st_dev         resq 1
     .st_ino         resq 1
@@ -25,7 +23,7 @@ endstruc
 
 %define STAT_SIZE 16
 
-; this one I did manually!!
+; this one I did myself!!
 struc elf64_hdr
     .e_ident        resb 0x10 ; ELF Magic and other good stuff :)
     .e_type         resw 0x01
