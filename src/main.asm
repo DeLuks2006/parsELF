@@ -4,6 +4,7 @@
 ; - check if proper elf magic bytes
 
 %include "src/macros.asm"
+%include "src/output.asm"
 %include "src/structs.asm"
 %include "src/std.asm"
 
@@ -51,8 +52,6 @@ section   .data
   ; shentsize: section_hdr size
   ; shnum: len(section_hdrs)
   ; shstrndx: section hdr string table idx
-
-
 
 section .text
 global  _start
@@ -121,8 +120,7 @@ _start:
   ; ...
 
   ; later do printc "magic: ", elf
-  lea   rdi,  elf_magic
-  call  println
+  call  print_elfh
 
 ; ___________________________________________________________[ EXIT ROUTINE ]_
 
