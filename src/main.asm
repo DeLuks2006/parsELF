@@ -14,8 +14,12 @@ section   .bss
   mapped_bin  resq  1
   st_stat     resq  STAT_SIZE
   st_elfhdr   resb  ELFHDR_SIZE
+  st_prghdr   resb  PRGHDR_SIZE
 
-section   .data
+  phnum       resw  1
+  shnum       resw  1
+
+section   .rodata
 ; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
   valid_magic db  0x7f, 0x45, 0x4c, 0x46
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
@@ -132,21 +136,34 @@ _start:
   lea   rdi,  prg_banner
   call  println
 
-  ; LATER ( random asm- probably not correct lol )
-  ;
-  ; loop:
-  ; push  [st_elfhdr+elf.phnum]
-  ;
-  ; mov   rsi,  [mapped_bin + ELFHDR_SIZE]
-  ; mov   rdi,  st_prghdr
-  ; mov   rcx,  PRGHDR_SIZE
-  ; rep   movsb
-  ;
-  ; call  print_prgh
-  ;
-  ; inc   rcx
-  ; cmp   rcx,  [rsp]
-  ; jne   loop
+  mov   rax,  [mapped_bin]                      ; get base
+  mov   rbx,  [rax + elf64_hdr.e_phoff]         ; offset
+  add   rax,  rbx                               ; 1st prghdr = base + offset 
+  
+  mov   rcx,  [mapped_bin]
+  mov   dx,   [rcx + elf64_hdr.e_phnum] ; get e_phnum
+  mov   [phnum], dx                     ; phnum
+
+  push  0x00
+
+  ph_loop:
+    mov   rsi,  rax         ; src = mapped_bin + offset
+    mov   rdi,  st_prghdr   ; dst = st_prghdr
+    mov   rcx,  PRGHDR_SIZE ; size = 56
+    rep   movsb
+  
+    push  rax
+    call  print_prgh
+    pop   rax
+
+    add   rax,  PRGHDR_SIZE ; point RAX to next hdr
+    
+    pop   rdx             ; this is dumb...
+    inc   rdx             ; counter + 1
+    push  rdx
+
+    cmp   rdx,  [phnum]  ; i == e_phnum
+    jne   ph_loop
 
 ; ________________________________________________[ PARSING SECTION HEADERS ]_
 

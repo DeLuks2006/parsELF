@@ -64,3 +64,18 @@ print_elfh:
   mov   rsp,  rbp
   pop   rbp
   ret
+
+
+print_prgh:
+  push  rbp
+  mov   rbp,  rsp
+  sub   rbp,  0x00
+
+  nop
+  nop
+  nop
+
+  xor   rax,  rax
+  mov   rsp,  rbp
+  pop   rbp
+  ret

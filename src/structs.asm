@@ -42,3 +42,16 @@ struc elf64_hdr
 endstruc
 
 %define ELFHDR_SIZE 64
+
+struc elf64_phdr
+    .p_type         resd 0x01 ; type of phdr
+    .p_flags        resd 0x01 ; flags
+    .p_offset       resq 0x01 ; offset to data
+    .p_vaddr        resq 0x01 ; put the segment here
+    .p_paddr        resq 0x01 ; undefined for sysv
+    .p_filesz       resq 0x01 ; size of segment in file
+    .p_memsz        resq 0x01 ; size of segment in memory
+    .p_align        resq 0x01
+endstruc
+
+%define PRGHDR_SIZE 56
