@@ -33,25 +33,26 @@ section   .data
   err_magic db  "[x] Invalid ELF magic :P", 0x0A, 0x00
 
   ; ELF HDR
-  elf_banner  db  "______________________________________[ ELF_HEADER ]", 0x00
-  elf_magic   db  "Magic: ", 0x00
-  elf_format  db  "Format (32 or 64bit): ", 0x00
-  elf_endian  db  "Endian: ", 0x00
-  elf_version db  "Version: ", 0x00
-  elf_trgt_os db  "Target OS: ", 0x00
-  elf_trgt_v  db  "Target Version: ", 0x00
-  ; filetype: ET_DYN, ET_EXEC, ...
-  ; instr_set: MIPS, RISCV, x86
-  ; entry: ???
-  ; phoff: ???
-  ; shoff: ???
-  ; flags ...
-  ; ehsize: size of this header (64)
-  ; phentsize: prog_hdr size
-  ; phnum: len(prog_hdrs) 
-  ; shentsize: section_hdr size
-  ; shnum: len(section_hdrs)
-  ; shstrndx: section hdr string table idx
+  elf_banner    db  "______________________________________[ ELF_HEADER ]", 0x00
+  elf_magic     db  "Magic: ", 0x00
+  elf_format    db  "Format (32 or 64bit): ", 0x00
+  elf_endian    db  "Endian: ", 0x00
+  elf_version   db  "Version: ", 0x00
+  elf_trgt_os   db  "Target OS: ", 0x00
+  elf_trgt_v    db  "Target Version: ", 0x00
+  ;
+  elf_filetype  db  "Type: ", 0x00 ; ET_DYN, ET_EXEC
+  elf_instrset  db  "Instruction Set: ", 0x00 ; MIPS, RISCV, x86
+  elf_entry     db  "Entrypoint: ", 0x00
+  elf_phoff     db  "ProgHdr Offset: ", 0x00
+  elf_shoff     db  "SectHdr Offset: ", 0x00
+  elf_flags     db  "Flags: ", 0x00
+  elf_ehsize    db  "Sizeof ELF hdr: ", 0x00
+  elf_phentsize db  "Sizeof ProgHdr: ", 0x00
+  elf_phnum     db  "Num Of ProgHdr: ", 0x00
+  elf_shentsize db  "Sizeof SectHdr: ", 0x00
+  elf_shnum     db  "Num of SectHdr: ", 0x00
+  elf_shstrndx  db  "String Table Index: ", 0x00
 
 section .text
 global  _start

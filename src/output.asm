@@ -24,6 +24,42 @@ print_elfh:
   lea   rdi,  elf_trgt_v
   call  println
   
+  lea   rdi,  elf_filetype
+  call  println
+
+  lea   rdi,  elf_instrset
+  call  println
+
+  lea   rdi,  elf_entry
+  call  println
+
+  lea   rdi,  elf_phoff
+  call  println
+
+  lea   rdi,  elf_shoff
+  call  println
+
+  lea   rdi,  elf_flags
+  call  println
+
+  lea   rdi,  elf_ehsize
+  call  println
+
+  lea   rdi,  elf_phentsize
+  call  println
+
+  lea   rdi,  elf_phnum
+  call  println
+
+  lea   rdi,  elf_shentsize
+  call  println
+
+  lea   rdi,  elf_shnum
+  call  println
+
+  lea   rdi,  elf_shstrndx
+  call  println
+
   xor   rax,  rax
   mov   rsp,  rbp
   pop   rbp
