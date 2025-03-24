@@ -1,6 +1,3 @@
-# ignore test binary
-test
-
 # ignore compiled bins
 main
 main.o

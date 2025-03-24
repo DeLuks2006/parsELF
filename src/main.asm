@@ -1,7 +1,5 @@
 ; TODO: 
-; - rewrite to use MMAP instead of SYS_READ
 ; - print_hex
-; - check if proper elf magic bytes
 
 %include "src/macros.asm"
 %include "src/output.asm"
@@ -21,6 +19,8 @@ section   .data
 ; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
   valid_magic db  0x7f, 0x45, 0x4c, 0x46
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
+  parself       db  0x0A, "           [ ParsELF - A Mini-ELF Parser ]          ", 0x0A, 0x00
+
   ; USAGE
   usg1  db  "Usage: ", 0x00
   usg2  db  " <FILE>", 0x0A, 0x00
@@ -40,7 +40,6 @@ section   .data
   elf_version   db  "Version: ", 0x00
   elf_trgt_os   db  "Target OS: ", 0x00
   elf_trgt_v    db  "Target Version: ", 0x00
-  ;
   elf_filetype  db  "Type: ", 0x00 ; ET_DYN, ET_EXEC
   elf_instrset  db  "Instruction Set: ", 0x00 ; MIPS, RISCV, x86
   elf_entry     db  "Entrypoint: ", 0x00
@@ -54,6 +53,11 @@ section   .data
   elf_shnum     db  "Num of SectHdr: ", 0x00
   elf_shstrndx  db  "String Table Index: ", 0x00
 
+  ; PROGRAM HDR
+  prg_banner    db  "__________________________________[ PROGRAM_HEADER ]", 0x00
+
+  ; SECTION HDR
+
 section .text
 global  _start
 
@@ -62,6 +66,9 @@ _start:
   pop   rax                 ; Shove argc into RAX
   cmp   rax, 2              ; If argc != 2
   jne   usage               ; Go to usage prompt :)
+
+  lea   rdi,  parself
+  call  println
 
   lea   rdi,  [rel info]    ; rdi = "opening ..."
   mov   rsi,  [rsp + 0x08]  ; rsi = argv[1]
@@ -113,15 +120,37 @@ _start:
     cmp   rcx,  0x04
     jne   magic_validation
 
-  ; Output ELF Banner
+  ; Output ELF banner
   lea   rdi,  elf_banner
   call  println
 
-  ; convert magic bytes to ascii
-  ; ...
-
-  ; later do printc "magic: ", elf
+  ; Output all members of ELF header
   call  print_elfh
+; ________________________________________________[ PARSING PROGRAM HEADERS ]_
+
+  ; Output program header banner
+  lea   rdi,  prg_banner
+  call  println
+
+  ; LATER ( random asm- probably not correct lol )
+  ;
+  ; loop:
+  ; push  [st_elfhdr+elf.phnum]
+  ;
+  ; mov   rsi,  [mapped_bin + ELFHDR_SIZE]
+  ; mov   rdi,  st_prghdr
+  ; mov   rcx,  PRGHDR_SIZE
+  ; rep   movsb
+  ;
+  ; call  print_prgh
+  ;
+  ; inc   rcx
+  ; cmp   rcx,  [rsp]
+  ; jne   loop
+
+; ________________________________________________[ PARSING SECTION HEADERS ]_
+
+; ...
 
 ; ___________________________________________________________[ EXIT ROUTINE ]_
 
