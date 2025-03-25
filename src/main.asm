@@ -1,6 +1,12 @@
 ; TODO: 
-; - read header size from ELF header instead of hardcoded values
 ; - print_hex
+; - go over section hedaers
+; - take big-endian into account
+; - compare ei_data and e_machine using lookup table or something
+; ...
+; takin some inspiration from travgm's parser: 
+; - use string lookup tables instead of Hex-Only output
+; - use arguments to: print all, print prghdr, print scthdr
 
 %include "src/macros.asm"
 %include "src/output.asm"
@@ -67,11 +73,12 @@ section   .rodata
   prg_offset    db  "Offset: ", 0x00
   prg_vaddr     db  "Virtual Address: ", 0x00
   prg_paddr     db  "Physical Address: ", 0x00
-  prg_filesz    db  "Size in Disk: ", 0x00
+  prg_filesz    db  "Size on Disk: ", 0x00
   prg_memsz     db  "Size in Memory: ", 0x00
   prg_align     db  "Alignment: ", 0x00
 
   ; SECTION HDR
+  sct_banner    db  "__________________________________[ SECTION_HEADER ]", 0x00
 
 section .text
 global  _start
@@ -103,7 +110,7 @@ _start:
 
   ; check if file is big enough to store headers
   mov   rax,  [st_stat + stat.st_size]
-  mov   rbx,  184 ; minimum filesize = 1 ELF hdr + 1 prg hdr + 1 sct hdr
+  mov   rbx,  100 ; minimum filesize
   cmp   rax,  rbx
   jl    size_error
 
@@ -170,11 +177,14 @@ _start:
     mov   rdi,  st_prghdr   ; dst = st_prghdr
     mov   rcx,  rbx         ; size = e_phentsize
 
-    cmp   rcx,  PRGHDR_SIZE
+    cmp   rcx,  PRGHDR_SIZE ; Check if size is expected
     jne   phentsize_error
 
     rep   movsb
   
+    ; TODO: Add here check if valid offset.
+    ; -> offset should not be > filesize
+
     push  rbx
     push  rax
     call  print_prgh
@@ -192,8 +202,9 @@ _start:
     syscall
     pop   rax
     pop   rax
-    pop   rbx
   ; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
+
+    pop   rbx
 
     pop   rdx             ; this is dumb...
     inc   rdx             ; counter + 1

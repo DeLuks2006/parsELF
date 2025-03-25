@@ -1,23 +1,14 @@
 <h1 align=center>parsELF</h1>
-<p align=center>An ELF parser written fully in NASM.</p>
+<p align=center>A simple ELF parser written fully in NASM.</p>
 
-> [!CAUTION]
-> im still learning, i got no idea what im doing, this is a WORK IN PROGRESS
->
-
-## TODO:
-
-- [X] ITOA but convert to hexadecimal
-- [X] Actually open a file and read it for once
-- [ ] Parse ELF header
-- [ ] ...
+It parses a little endian ELF64. (will change soon)
 
 ## Function List 
 
-- ITOA      - converts num to ASCII (decimal, hex)
-- PRINT     - prints some text
-- PRINTN    - prints some text and a newline
-- PRINTC    - calls print and then printn
+- ITOA       - converts num to ASCII (decimal, hex)
+- PRINT      - prints some text
+- PRINTLN    - prints some text and a newline
+- PRINTC     - calls print and then println
 
 ## About:
 
