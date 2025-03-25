@@ -71,9 +71,29 @@ print_prgh:
   mov   rbp,  rsp
   sub   rbp,  0x00
 
-  nop
-  nop
-  nop
+  lea   rdi,  prg_type
+  call  println
+
+  lea   rdi,  prg_flags
+  call  println
+
+  lea   rdi,  prg_offset
+  call  println
+
+  lea   rdi,  prg_vaddr
+  call  println
+
+  lea   rdi,  prg_paddr
+  call  println
+
+  lea   rdi,  prg_filesz
+  call  println
+
+  lea   rdi,  prg_memsz
+  call  println
+
+  lea   rdi,  prg_align
+  call  println
 
   xor   rax,  rax
   mov   rsp,  rbp

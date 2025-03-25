@@ -51,7 +51,7 @@ struc elf64_phdr
     .p_paddr        resq 0x01 ; undefined for sysv
     .p_filesz       resq 0x01 ; size of segment in file
     .p_memsz        resq 0x01 ; size of segment in memory
-    .p_align        resq 0x01
+    .p_align        resq 0x01 ; required alignment
 endstruc
 
 %define PRGHDR_SIZE 56

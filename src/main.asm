@@ -1,4 +1,5 @@
 ; TODO: 
+; - read header size from ELF header instead of hardcoded values
 ; - print_hex
 
 %include "src/macros.asm"
@@ -33,8 +34,10 @@ section   .rodata
   info  db  "Opening: ", 0x00
 
   ; ERROR
-  err_small db  "[x] Filesize too small (this time size DOES MATTER)", 0x0A, 0x00
-  err_magic db  "[x] Invalid ELF magic :P", 0x0A, 0x00
+  err_small     db  "[x] Filesize too small (this time size DOES MATTER)", 0x0A, 0x00
+  err_magic     db  "[x] Invalid ELF magic :P", 0x0A, 0x00
+  err_ehsize    db  "[x] Unexpected e_ehsize value", 0x0A, 0x00
+  err_phentsize db  "[x] Unexpected e_phentsize value", 0x0A, 0x00
 
   ; ELF HDR
   elf_banner    db  "______________________________________[ ELF_HEADER ]", 0x00
@@ -59,6 +62,14 @@ section   .rodata
 
   ; PROGRAM HDR
   prg_banner    db  "__________________________________[ PROGRAM_HEADER ]", 0x00
+  prg_type      db  "Type: ", 0x00
+  prg_flags     db  "Flags: ", 0x00
+  prg_offset    db  "Offset: ", 0x00
+  prg_vaddr     db  "Virtual Address: ", 0x00
+  prg_paddr     db  "Physical Address: ", 0x00
+  prg_filesz    db  "Size in Disk: ", 0x00
+  prg_memsz     db  "Size in Memory: ", 0x00
+  prg_align     db  "Alignment: ", 0x00
 
   ; SECTION HDR
 
@@ -92,7 +103,7 @@ _start:
 
   ; check if file is big enough to store headers
   mov   rax,  [st_stat + stat.st_size]
-  mov   rbx,  184 ; minimum filesize = 1 ELF hdr + 1 program hdr + 1 section hdr
+  mov   rbx,  184 ; minimum filesize = 1 ELF hdr + 1 prg hdr + 1 sct hdr
   cmp   rax,  rbx
   jl    size_error
 
@@ -102,20 +113,24 @@ _start:
 
 ; _____________________________________________________[ PARSING ELF HEADER ]_
 
+  xor   rcx,  rcx
+  
   ; Load mmap-ed file into struct
-  mov   rsi,  [mapped_bin]    ; src  = mapped_bin
-  mov   rdi,  st_elfhdr       ; dest = st_elfhdr
-  mov   rcx,  ELFHDR_SIZE     ; size = 64
+  mov   rsi,  [mapped_bin]                    ; src  = mapped_bin
+  mov   rdi,  st_elfhdr                       ; dest = st_elfhdr
+  mov   cx,   word [rsi + elf64_hdr.e_ehsize] ; size = e_ehsize
+
+  cmp   rcx,  ELFHDR_SIZE                     ; Check if size is expected
+  jne   ehsize_error
+  
   rep   movsb
 
-  xor   rax,  rax
-  xor   rbx,  rbx
   xor   rcx,  rcx
 
   ; Check if correct magic bytes :)
   magic_validation:
-    mov   al,  byte [st_elfhdr+rcx]   ; read  byte
-    mov   bl,  byte [valid_magic+rcx] ; valid byte
+    movzx rax,  byte [st_elfhdr+rcx]   ; read  byte
+    movzx rbx,  byte [valid_magic+rcx] ; valid byte
     
     cmp   rax,  rbx
     jne   magic_error                 ; if invalid, goto cleanup
@@ -140,7 +155,11 @@ _start:
   mov   rbx,  [rax + elf64_hdr.e_phoff]         ; offset
   add   rax,  rbx                               ; 1st prghdr = base + offset 
   
+  xor   rbx,  rbx ; just to be safe
+  xor   rdx,  rdx
+
   mov   rcx,  [mapped_bin]
+  mov   bx,   [rcx + elf64_hdr.e_phentsize]
   mov   dx,   [rcx + elf64_hdr.e_phnum] ; get e_phnum
   mov   [phnum], dx                     ; phnum
 
@@ -149,15 +168,33 @@ _start:
   ph_loop:
     mov   rsi,  rax         ; src = mapped_bin + offset
     mov   rdi,  st_prghdr   ; dst = st_prghdr
-    mov   rcx,  PRGHDR_SIZE ; size = 56
+    mov   rcx,  rbx         ; size = e_phentsize
+
+    cmp   rcx,  PRGHDR_SIZE
+    jne   phentsize_error
+
     rep   movsb
   
+    push  rbx
     push  rax
     call  print_prgh
     pop   rax
 
     add   rax,  PRGHDR_SIZE ; point RAX to next hdr
     
+  ; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
+    push  rax
+    mov   rdx,  0x02
+    push  0x0A
+    mov   rsi,  rsp  
+    mov   rdi,  0x01
+    mov   rax,  0x01
+    syscall
+    pop   rax
+    pop   rax
+    pop   rbx
+  ; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
+
     pop   rdx             ; this is dumb...
     inc   rdx             ; counter + 1
     push  rdx
@@ -172,10 +209,8 @@ _start:
 ; ___________________________________________________________[ EXIT ROUTINE ]_
 
 cleanup:
-  ; CLOSE(fd);
-  close [fd]
-
-  ; UNMAP THE FILE
+  ; CLOSE AND UNMAP THE FILE
+  close   [fd]
   munmap  [mapped_bin], st_stat
 
 ; EXIT
@@ -203,10 +238,26 @@ size_error:
   jmp   error
 
 magic_error:
-  close [fd]
+  close   [fd]
   munmap  [mapped_bin], st_stat
 
   lea   rdi,  err_magic
+  call  println
+  jmp   error
+
+ehsize_error:
+  close   [fd]
+  munmap  [mapped_bin], st_stat
+
+  lea   rdi,  err_ehsize
+  call  println
+  jmp   error
+
+phentsize_error:
+  close   [fd]
+  munmap  [mapped_bin], st_stat
+
+  lea   rdi,  err_phentsize
   call  println
   jmp   error
 
