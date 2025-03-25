@@ -12,6 +12,7 @@
 %include "src/output.asm"
 %include "src/structs.asm"
 %include "src/std.asm"
+%include "src/hexdump.asm"
 
 section   .bss
 ; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
@@ -47,7 +48,7 @@ section   .rodata
 
   ; ELF HDR
   elf_banner    db  "______________________________________[ ELF_HEADER ]", 0x00
-  elf_magic     db  "Magic: ", 0x00
+  elf_magic     db  `Magic:\t\t`, 0x00
   elf_format    db  "Format (32 or 64bit): ", 0x00
   elf_endian    db  "Endian: ", 0x00
   elf_version   db  "Version: ", 0x00
@@ -55,15 +56,15 @@ section   .rodata
   elf_trgt_v    db  "Target Version: ", 0x00
   elf_filetype  db  "Type: ", 0x00 ; ET_DYN, ET_EXEC
   elf_instrset  db  "Instruction Set: ", 0x00 ; MIPS, RISCV, x86
-  elf_entry     db  "Entrypoint: ", 0x00
-  elf_phoff     db  "ProgHdr Offset: ", 0x00
-  elf_shoff     db  "SectHdr Offset: ", 0x00
-  elf_flags     db  "Flags: ", 0x00
-  elf_ehsize    db  "Sizeof ELF hdr: ", 0x00
-  elf_phentsize db  "Sizeof ProgHdr: ", 0x00
-  elf_phnum     db  "Num Of ProgHdr: ", 0x00
-  elf_shentsize db  "Sizeof SectHdr: ", 0x00
-  elf_shnum     db  "Num of SectHdr: ", 0x00
+  elf_entry     db  `Entrypoint:\t0x`, 0x00
+  elf_phoff     db  `ProgHdr Offset:\t0x`, 0x00
+  elf_shoff     db  `SectHdr Offset:\t0x`, 0x00
+  elf_flags     db  `Flags:\t\t`, 0x00
+  elf_ehsize    db  `Sizeof ELF hdr:\t0x`, 0x00
+  elf_phentsize db  `Sizeof ProgHdr:\t0x`, 0x00
+  elf_phnum     db  `Num Of ProgHdr:\t0x`, 0x00
+  elf_shentsize db  `Sizeof SectHdr:\t0x`, 0x00
+  elf_shnum     db  `Num of SectHdr:\t0x`, 0x00
   elf_shstrndx  db  "String Table Index: ", 0x00
 
   ; PROGRAM HDR
