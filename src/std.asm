@@ -3,7 +3,7 @@
 
 ; ITOA ----------------------------------------------------------------------
 ; INT TO ASCII
-; converts a number to decimal representation in ASCII
+; converts a number in rax to decimal representation in ASCII in *rsi
 
 itoa:
   push  rbp
@@ -57,6 +57,8 @@ itoa_buf_loop:
 
   inc   r11             ; move ptr
   loop  itoa_buf_loop
+
+  mov   byte [r11], 0x00        ; null terminate string
 
   xor   rax,  rax  ; success
   mov   rsp,  rbp

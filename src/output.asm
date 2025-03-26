@@ -3,11 +3,19 @@
 print_elfh:
   push  rbp
   mov   rbp,  rsp
-  sub   rbp,  0x00
+  sub   rsp,  0x80        ;allocate buffer for hexdump
 
   ; later call itoh and printc
   lea   rdi,  elf_magic
+  call  print
+
+  mov   rdi, [mapped_bin]
+  mov   rsi, 0x10
+  mov   rdx, rsp
+  call  hexdump
+  mov   rdi, rsp
   call  println
+
 
   lea   rdi,  elf_format
   call  println
@@ -23,7 +31,7 @@ print_elfh:
 
   lea   rdi,  elf_trgt_v
   call  println
-  
+
   lea   rdi,  elf_filetype
   call  println
 
@@ -31,30 +39,93 @@ print_elfh:
   call  println
 
   lea   rdi,  elf_entry
+  call  print
+  mov   rdi, [mapped_bin]
+  add   rdi, elf64_hdr.e_entry
+  mov   rdi, [rdi]
+  mov   rsi, rsp
+  call  itoa
+  mov   rdi, rsp
   call  println
 
   lea   rdi,  elf_phoff
+  call  print
+  mov   rdi, [mapped_bin]
+  add   rdi, elf64_hdr.e_phoff
+  mov   rdi, [rdi]
+  mov   rsi, rsp
+  call  itoa
+  mov   rdi, rsp
   call  println
 
   lea   rdi,  elf_shoff
+  call  print
+  mov   rdi, [mapped_bin]
+  add   rdi, elf64_hdr.e_shoff
+  mov   rdi, [rdi]
+  mov   rsi, rsp
+  call  itoa
+  mov   rdi, rsp
   call  println
 
   lea   rdi,  elf_flags
+  call  print
+  mov   rdi, [mapped_bin]
+  add   rdi, elf64_hdr.e_flags
+  mov   rsi, 0x4
+  mov   rdx, rsp
+  call  hexdump
+  mov   rdi, rsp
   call  println
 
   lea   rdi,  elf_ehsize
+  call  print
+  mov   rdi, [mapped_bin]
+  add   rdi, elf64_hdr.e_ehsize
+  movzx rdi, word [rdi]
+  mov   rsi, rsp
+  call  itoa
+  mov   rdi, rsp
   call  println
 
   lea   rdi,  elf_phentsize
+  call  print
+  mov   rdi, [mapped_bin]
+  add   rdi, elf64_hdr.e_phentsize
+  movzx rdi, word [rdi]
+  mov   rsi, rsp
+  call  itoa
+  mov   rdi, rsp
   call  println
 
   lea   rdi,  elf_phnum
+  call  print
+  mov   rdi, [mapped_bin]
+  add   rdi, elf64_hdr.e_phnum
+  movzx rdi, word [rdi]
+  mov   rsi, rsp
+  call itoa
+  mov   rdi, rsp
   call  println
 
   lea   rdi,  elf_shentsize
+  call  print
+  mov   rdi, [mapped_bin]
+  add   rdi, elf64_hdr.e_shentsize
+  movzx rdi, word [rdi]
+  mov   rsi, rsp
+  call  itoa
+  mov   rdi, rsp
   call  println
 
   lea   rdi,  elf_shnum
+  call  print
+  mov   rdi, [mapped_bin]
+  add   rdi, elf64_hdr.e_shnum
+  movzx rdi, word [rdi]
+  mov   rsi, rsp
+  call  itoa
+  mov   rdi, rsp
   call  println
 
   lea   rdi,  elf_shstrndx

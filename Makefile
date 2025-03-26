@@ -1,5 +1,5 @@
 ASM = nasm
-AFLAGS = -f elf64
+AFLAGS = -f elf64 -g
 LD = ld
 SRC = src/main.asm
 OUT = main
