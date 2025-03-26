@@ -2,3 +2,5 @@
 main
 main.o
 
+test
+test/*

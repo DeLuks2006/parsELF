@@ -3,6 +3,7 @@
 ; - go over section hedaers
 ; - take big-endian into account
 ; - compare ei_data and e_machine using lookup table or something
+; - handle 32bit too
 ; ...
 ; takin some inspiration from travgm's parser: 
 ; - use string lookup tables instead of Hex-Only output
@@ -22,6 +23,7 @@ section   .bss
   st_stat     resq  STAT_SIZE
   st_elfhdr   resb  ELFHDR_SIZE
   st_prghdr   resb  PRGHDR_SIZE
+  st_scthdr   resb  SCTHDR_SIZE
 
   phnum       resw  1
   shnum       resw  1
@@ -40,10 +42,11 @@ section   .rodata
   info  db  "Opening: ", 0x00
 
   ; ERROR
-  err_small     db  "[x] Filesize too small (this time size DOES MATTER)", 0x0A, 0x00
-  err_magic     db  "[x] Invalid ELF magic :P", 0x0A, 0x00
-  err_ehsize    db  "[x] Unexpected e_ehsize value", 0x0A, 0x00
-  err_phentsize db  "[x] Unexpected e_phentsize value", 0x0A, 0x00
+  err_small       db  "[x] Filesize too small (this time size DOES MATTER)", 0x0A, 0x00
+  err_magic       db  "[x] Invalid ELF magic :P", 0x0A, 0x00
+  err_e_ehsize    db  "[x] Unexpected e_ehsize value", 0x0A, 0x00
+  err_e_phentsize db  "[x] Unexpected e_phentsize value", 0x0A, 0x00
+  err_p_offset    db  "[x] The value p_offset is greater than the filesize.", 0x0A, 0x00
 
   ; ELF HDR
   elf_banner    db  "______________________________________[ ELF_HEADER ]", 0x00
@@ -118,6 +121,8 @@ _start:
   mmap  st_stat, [fd]         ; MMAP(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
   mov   [mapped_bin], rax     ; Save loaded file in "mapped_bin"
 
+  close [fd]
+
 ; _____________________________________________________[ PARSING ELF HEADER ]_
 
   xor   rcx,  rcx
@@ -128,7 +133,7 @@ _start:
   mov   cx,   word [rsi + elf64_hdr.e_ehsize] ; size = e_ehsize
 
   cmp   rcx,  ELFHDR_SIZE                     ; Check if size is expected
-  jne   ehsize_error
+  jne   e_ehsize_error
   
   rep   movsb
 
@@ -140,7 +145,7 @@ _start:
     movzx rbx,  byte [valid_magic+rcx] ; valid byte
     
     cmp   rax,  rbx
-    jne   magic_error                 ; if invalid, goto cleanup
+    jne   magic_error                 ; if invalid, goto error
 
     inc   rcx
     cmp   rcx,  0x04
@@ -162,11 +167,11 @@ _start:
   mov   rbx,  [rax + elf64_hdr.e_phoff]         ; offset
   add   rax,  rbx                               ; 1st prghdr = base + offset 
   
-  xor   rbx,  rbx ; just to be safe
+  xor   r8,   r8  ; just to be safe
   xor   rdx,  rdx
 
   mov   rcx,  [mapped_bin]
-  mov   bx,   [rcx + elf64_hdr.e_phentsize]
+  mov   r8w,  [rcx + elf64_hdr.e_phentsize]
   mov   dx,   [rcx + elf64_hdr.e_phnum] ; get e_phnum
   mov   [phnum], dx                     ; phnum
 
@@ -175,17 +180,17 @@ _start:
   ph_loop:
     mov   rsi,  rax         ; src = mapped_bin + offset
     mov   rdi,  st_prghdr   ; dst = st_prghdr
-    mov   rcx,  rbx         ; size = e_phentsize
+    mov   rcx,  r8          ; size = e_phentsize
 
     cmp   rcx,  PRGHDR_SIZE ; Check if size is expected
-    jne   phentsize_error
+    jne   e_phentsize_error
 
     rep   movsb
-  
-    ; TODO: Add here check if valid offset.
-    ; -> offset should not be > filesize
+    
+    mov   r9,   [st_prghdr + elf64_phdr.p_offset]
+    cmp   r9,   [st_stat + stat.st_size]
+    jge   p_offset_error
 
-    push  rbx
     push  rax
     call  print_prgh
     pop   rax
@@ -204,8 +209,6 @@ _start:
     pop   rax
   ; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
 
-    pop   rbx
-
     pop   rdx             ; this is dumb...
     inc   rdx             ; counter + 1
     push  rdx
@@ -219,9 +222,7 @@ _start:
 
 ; ___________________________________________________________[ EXIT ROUTINE ]_
 
-cleanup:
-  ; CLOSE AND UNMAP THE FILE
-  close   [fd]
+  ; UNMAP THE FILE
   munmap  [mapped_bin], st_stat
 
 ; EXIT
@@ -242,35 +243,23 @@ usage:
   jmp   error
 
 size_error:
-  close [fd]
-  
   lea   rdi, err_small
   call  println
   jmp   error
 
+; Could this macro have less arguments? Yes.
+; Why does it then take 3 args? Because me wanna make it * reusable & readable *. :3
 magic_error:
-  close   [fd]
-  munmap  [mapped_bin], st_stat
+  cleanup [mapped_bin], st_stat, err_magic
 
-  lea   rdi,  err_magic
-  call  println
-  jmp   error
+e_ehsize_error:
+  cleanup [mapped_bin], st_stat, err_e_ehsize
 
-ehsize_error:
-  close   [fd]
-  munmap  [mapped_bin], st_stat
+e_phentsize_error:
+  cleanup [mapped_bin], st_stat, err_e_phentsize
 
-  lea   rdi,  err_ehsize
-  call  println
-  jmp   error
-
-phentsize_error:
-  close   [fd]
-  munmap  [mapped_bin], st_stat
-
-  lea   rdi,  err_phentsize
-  call  println
-  jmp   error
+p_offset_error:
+  cleanup [mapped_bin], st_stat, err_p_offset
 
 error:
   xor   rdi,  rdi       

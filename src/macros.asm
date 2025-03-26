@@ -48,7 +48,7 @@
   syscall
 %endmacro
 
-; munmap(
+; munmap
 %macro munmap 2
   mov   rdi,  %1
   mov   rsi,  [%2 + stat.st_size]
@@ -56,3 +56,10 @@
   syscall
 %endmacro
 
+%macro cleanup 3
+  munmap  %1, %2    ;[mapped_bin], st_stat
+
+  lea   rdi,  %3    ;err_e_phentsize
+  call  println
+  jmp   error
+%endmacro

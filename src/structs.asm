@@ -2,23 +2,23 @@
 
 ; This one I stole from TMZ's "Nasty"
 struc stat
-    .st_dev         resq 1
-    .st_ino         resq 1
-    .st_nlink       resq 1
-    .st_mode        resd 1
-    .st_uid         resd 1
-    .st_gid         resd 1
-    .padding        resb 4
-    .st_rdev        resq 1
-    .st_size        resq 1
-    .st_blksize     resq 1
-    .st_blocks      resq 1
-    .st_atime       resq 1
-    .st_atime_nsec  resq 1
-    .st_mtime       resq 1
-    .st_mtime_nsec  resq 1
-    .st_ctime       resq 1
-    .st_ctime_nsec  resq 1
+    .st_dev         resq 0x01
+    .st_ino         resq 0x01
+    .st_nlink       resq 0x01
+    .st_mode        resd 0x01
+    .st_uid         resd 0x01
+    .st_gid         resd 0x01
+    .padding        resb 0x04
+    .st_rdev        resq 0x01
+    .st_size        resq 0x01
+    .st_blksize     resq 0x01
+    .st_blocks      resq 0x01
+    .st_atime       resq 0x01
+    .st_atime_nsec  resq 0x01
+    .st_mtime       resq 0x01
+    .st_mtime_nsec  resq 0x01
+    .st_ctime       resq 0x01
+    .st_ctime_nsec  resq 0x01
 endstruc
 
 %define STAT_SIZE 16
@@ -55,3 +55,18 @@ struc elf64_phdr
 endstruc
 
 %define PRGHDR_SIZE 56
+
+struc elf64_shdr
+  .sh_name          resd 0x01;
+  .sh_type          resd 0x01;
+  .sh_flags         resq 0x01;
+  .sh_addr          resq 0x01;
+  .sh_offset        resq 0x01;
+  .sh_size          resq 0x01;
+  .sh_link          resd 0x01;
+  .sh_info          resd 0x01;
+  .sh_addralign     resq 0x01;
+  .sh_entsize       resq 0x01;
+endstruc
+
+%define SCTHDR_SIZE 64
