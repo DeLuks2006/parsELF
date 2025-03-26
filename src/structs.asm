@@ -41,7 +41,26 @@ struc elf64_hdr
     .e_shstrndx     resw 0x01 ; section header string table index
 endstruc
 
-%define ELFHDR_SIZE 64
+%define ELFHDR64_SIZE 64
+
+struc elf32_hdr
+    .e_ident        resb 0x10 ; ELF Magic and other good stuff :)
+    .e_type         resw 0x01
+    .e_machine      resw 0x01
+    .e_version      resd 0x01
+    .e_entry        resd 0x01 ; Entry :3
+    .e_phoff        resd 0x01 ; Wow a program header offset
+    .e_shoff        resd 0x01 ; Wow++ a section header offset
+    .e_flags        resd 0x01
+    .e_ehsize       resw 0x01
+    .e_phentsize    resw 0x01 ; sizeof(program_header)
+    .e_phnum        resw 0x01 ; num of program headers
+    .e_shentsize    resw 0x01 ; sizeof(section header)
+    .e_shnum        resw 0x01 ; num of section headers
+    .e_shstrndx     resw 0x01 ; section header string table index
+endstruc
+
+%define ELFHDR32_SIZE 52
 
 struc elf64_phdr
     .p_type         resd 0x01 ; type of phdr
@@ -54,7 +73,20 @@ struc elf64_phdr
     .p_align        resq 0x01 ; required alignment
 endstruc
 
-%define PRGHDR_SIZE 56
+%define PRGHDR64_SIZE 56
+
+struc elf32_phdr
+    .p_type         resd 0x01 ; type of phdr
+    .p_offset       resd 0x01 ; offset to data
+    .p_vaddr        resd 0x01 ; put the segment here
+    .p_paddr        resd 0x01 ; undefined for sysv
+    .p_filesz       resd 0x01 ; size of segment in file
+    .p_memsz        resd 0x01 ; size of segment in memory
+    .p_flags        resd 0x01 ; flags
+    .p_align        resd 0x01 ; required alignment
+endstruc
+
+%define PRGHDR32_SIZE 32
 
 struc elf64_shdr
   .sh_name          resd 0x01;
@@ -69,4 +101,28 @@ struc elf64_shdr
   .sh_entsize       resq 0x01;
 endstruc
 
-%define SCTHDR_SIZE 64
+%define SCTHDR64_SIZE 64
+
+struc elf32_shdr
+  .sh_name          resd 0x01;
+  .sh_type          resd 0x01;
+  .sh_flags         resd 0x01;
+  .sh_addr          resd 0x01;
+  .sh_offset        resd 0x01;
+  .sh_size          resd 0x01;
+  .sh_link          resd 0x01;
+  .sh_info          resd 0x01;
+  .sh_addralign     resd 0x01;
+  .sh_entsize       resd 0x01;
+endstruc
+
+%define SCTHDR32_SIZE 40
+
+; ENDIAN PARSING ----------------------------
+
+struc ep_table
+  .ep_arch    resb  0x01
+  .ep_endian  resb  0x01
+endstruc
+
+%define EPTAB_SIZE 2

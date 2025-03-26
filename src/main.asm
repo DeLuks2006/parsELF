@@ -1,9 +1,8 @@
 ; TODO: 
-; - print_hex
-; - go over section hedaers
+; - handle 32bit too
+; - go over section headers
 ; - take big-endian into account
 ; - compare ei_data and e_machine using lookup table or something
-; - handle 32bit too
 ; ...
 ; takin some inspiration from travgm's parser: 
 ; - use string lookup tables instead of Hex-Only output
@@ -22,9 +21,9 @@ section   .bss
   fd          resq  1
   mapped_bin  resq  1
   st_stat     resq  STAT_SIZE
-  st_elfhdr   resb  ELFHDR_SIZE
-  st_prghdr   resb  PRGHDR_SIZE
-  st_scthdr   resb  SCTHDR_SIZE
+  st_elfhdr   resb  ELFHDR64_SIZE
+  st_prghdr   resb  PRGHDR64_SIZE
+  st_scthdr   resb  SCTHDR64_SIZE
 
   phnum       resw  1
   shnum       resw  1
@@ -32,6 +31,17 @@ section   .bss
 section   .rodata
 ; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
   valid_magic db  0x7f, 0x45, 0x4c, 0x46
+
+; MACHINE : ENDIAN TABLE
+;  em_table     db 0x00, 0x00, 0x01, 0x01, 0x02, 0x02,
+;                  0x03, 0x01, 0x04, 0x02, 0x05, 0x02, 
+;                  0x07, 0x01, 0x08, 0x02, 0x09, 0x02,
+;                  0x0A, 0x01, 0x0F, 0x01, 0x10, 0x02,
+;                  0x12, 0x02, 0x14, 0x02, 0x15, 0x02,
+;                  0x28, 0x01, 0x2a, 0x01, 0x2b, 0x02,
+;                  0x32, 0x01, 0x3e, 0x01, 0xb7, 0x01,
+;                  0xf3, 0x01,
+
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
   parself       db  0x0A, "           [ ParsELF - A Mini-ELF Parser ]          ", 0x0A, 0x00
 
@@ -51,9 +61,9 @@ section   .rodata
 
   ; ELF HDR
   elf_banner    db  "______________________________________[ ELF_HEADER ]", 0x00
-  elf_magic     db  `Magic:\t\t`, 0x00
-  elf_format    db  "Format (32 or 64bit): ", 0x00
-  elf_endian    db  "Endian: ", 0x00
+  elf_magic     db  `Magic:\t`, 0x00
+  elf_format    db  "Format: ", 0x00 ; 32 or 64bit
+  elf_endian    db  "Endian: ", 0x00 ; little or big
   elf_version   db  "Version: ", 0x00
   elf_trgt_os   db  "Target OS: ", 0x00
   elf_trgt_v    db  "Target Version: ", 0x00
@@ -125,15 +135,13 @@ _start:
   close [fd]
 
 ; _____________________________________________________[ PARSING ELF HEADER ]_
-
-  xor   rcx,  rcx
   
   ; Load mmap-ed file into struct
   mov   rsi,  [mapped_bin]                    ; src  = mapped_bin
   mov   rdi,  st_elfhdr                       ; dest = st_elfhdr
-  mov   cx,   word [rsi + elf64_hdr.e_ehsize] ; size = e_ehsize
+  movzx rcx,  word [rsi + elf64_hdr.e_ehsize] ; size = e_ehsize
 
-  cmp   rcx,  ELFHDR_SIZE                     ; Check if size is expected
+  cmp   rcx,  ELFHDR64_SIZE                     ; Check if size is expected
   jne   e_ehsize_error
   
   rep   movsb
@@ -168,12 +176,9 @@ _start:
   mov   rbx,  [rax + elf64_hdr.e_phoff]         ; offset
   add   rax,  rbx                               ; 1st prghdr = base + offset 
   
-  xor   r8,   r8  ; just to be safe
-  xor   rdx,  rdx
-
   mov   rcx,  [mapped_bin]
-  mov   r8w,  [rcx + elf64_hdr.e_phentsize]
-  mov   dx,   [rcx + elf64_hdr.e_phnum] ; get e_phnum
+  movzx r8,   word [rcx + elf64_hdr.e_phentsize]
+  movzx rdx,   word [rcx + elf64_hdr.e_phnum] ; get e_phnum
   mov   [phnum], dx                     ; phnum
 
   push  0x00
@@ -183,7 +188,7 @@ _start:
     mov   rdi,  st_prghdr   ; dst = st_prghdr
     mov   rcx,  r8          ; size = e_phentsize
 
-    cmp   rcx,  PRGHDR_SIZE ; Check if size is expected
+    cmp   rcx,  PRGHDR64_SIZE ; Check if size is expected
     jne   e_phentsize_error
 
     rep   movsb
@@ -196,7 +201,7 @@ _start:
     call  print_prgh
     pop   rax
 
-    add   rax,  PRGHDR_SIZE ; point RAX to next hdr
+    add   rax,  PRGHDR64_SIZE ; point RAX to next hdr
     
   ; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
     push  rax

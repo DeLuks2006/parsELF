@@ -6,7 +6,7 @@ OUT = main
 
 all:
 	@echo "[#] Assembling..."
-	$(ASM) $(AFLAGS) $(SRC) -o $(OUT).o -g
+	$(ASM) $(AFLAGS) $(SRC) -o $(OUT).o
 	@echo "[#] Linking..."
 	$(LD) -o $(OUT) $(OUT).o
 
