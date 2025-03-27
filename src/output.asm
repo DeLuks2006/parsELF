@@ -120,6 +120,12 @@ print_elfh:
   call  println
 
   lea   rdi,  elf_shstrndx
+  call  print
+  mov   rdi, st_elfhdr
+  movzx rdi, word [rdi + elf64_hdr.e_shstrndx]
+  mov   rsi, rsp
+  call  itoa
+  mov   rdi, rsp
   call  println
 
   xor   rax,  rax
@@ -131,7 +137,7 @@ print_elfh:
 print_prgh:
   push  rbp
   mov   rbp,  rsp
-  ;sub   rbp,  0x38 ;<--- this fuck makes everything crash
+  sub   rsp,  0x38
 
   lea   rdi,  prg_type
   call  println
@@ -140,27 +146,63 @@ print_prgh:
   call  println
 
   lea   rdi,  prg_offset
+  call  print
+  mov   rdi,  st_prghdr
+  mov   rdi,  [rdi + elf64_phdr.p_offset]
+  mov   rsi,  rsp
+  mov   rdx,  0x10
+  call  itoa
+  mov   rdi,  rsp
   call  println
-  ;mov   rdi,  st_prghdr
-  ;movzx rdi,  word [rdi + elf64_phdr.p_offset]
-  ;mov   rsi,  rsp
-  ;call  itoa
-  ;mov   rdi,  rsp
-  ;call  println
 
   lea   rdi,  prg_vaddr
+  call  print
+  mov   rdi,  st_prghdr
+  mov   rdi,  [rdi + elf64_phdr.p_vaddr]
+  mov   rsi,  rsp
+  mov   rdx,  0x10
+  call  itoa
+  mov   rdi,  rsp
   call  println
 
   lea   rdi,  prg_paddr
+  call  print
+  mov   rdi,  st_prghdr
+  mov   rdi,  [rdi + elf64_phdr.p_paddr]
+  mov   rsi,  rsp
+  mov   rdx,  0x10
+  call  itoa
+  mov   rdi,  rsp
   call  println
 
   lea   rdi,  prg_filesz
+  call  print
+  mov   rdi,  st_prghdr
+  mov   rdi,  [rdi + elf64_phdr.p_filesz]
+  mov   rsi,  rsp
+  mov   rdx,  0x10
+  call  itoa
+  mov   rdi,  rsp
   call  println
 
   lea   rdi,  prg_memsz
+  call  print
+  mov   rdi,  st_prghdr
+  mov   rdi,  [rdi + elf64_phdr.p_memsz]
+  mov   rsi,  rsp
+  mov   rdx,  0x10
+  call  itoa
+  mov   rdi,  rsp
   call  println
 
   lea   rdi,  prg_align
+  call  print
+  mov   rdi,  st_prghdr
+  mov   rdi,  [rdi + elf64_phdr.p_align]
+  mov   rsi,  rsp
+  mov   rdx,  0x10
+  call  itoa
+  mov   rdi,  rsp
   call  println
 
   xor   rax,  rax

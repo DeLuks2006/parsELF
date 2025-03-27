@@ -41,7 +41,7 @@ section   .rodata
 ; insert here later
 
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
-  parself       db  0x0A, "           [ ParsELF - A Mini-ELF Parser ]          ", 0x0A, 0x00
+  parself       db  0x0A, "            [ ParsELF - A Mini-ELF Parser ]            ", 0x0A, 0x00
 
   ; USAGE
   usg1  db  "Usage: ", 0x00
@@ -58,8 +58,8 @@ section   .rodata
   err_p_offset    db  "[x] The value p_offset is greater than the filesize.", 0x0A, 0x00
 
   ; ELF HDR
-  elf_banner    db  "______________________________________[ ELF_HEADER ]", 0x00
-  elf_magic     db  `Magic:\t`, 0x00
+  elf_banner    db  "_________________________________________[ ELF_HEADER ]", 0x00
+  elf_magic     db  `Magic: `, 0x00
   elf_format    db  "Format: ", 0x00 ; 32 or 64bit
   elf_endian    db  "Endian: ", 0x00 ; little or big
   elf_version   db  "Version: ", 0x00
@@ -67,30 +67,30 @@ section   .rodata
   elf_trgt_v    db  "Target Version: ", 0x00
   elf_filetype  db  "Type: ", 0x00 ; ET_DYN, ET_EXEC
   elf_instrset  db  "Instruction Set: ", 0x00 ; MIPS, RISCV, x86
-  elf_entry     db  `Entrypoint:\t0x`, 0x00
-  elf_phoff     db  `ProgHdr Offset:\t0x`, 0x00
-  elf_shoff     db  `SectHdr Offset:\t0x`, 0x00
-  elf_flags     db  `Flags:\t\t`, 0x00
-  elf_ehsize    db  `Sizeof ELF hdr:\t0x`, 0x00
-  elf_phentsize db  `Sizeof ProgHdr:\t0x`, 0x00
-  elf_phnum     db  `Num Of ProgHdr:\t0x`, 0x00
-  elf_shentsize db  `Sizeof SectHdr:\t0x`, 0x00
-  elf_shnum     db  `Num of SectHdr:\t0x`, 0x00
-  elf_shstrndx  db  "String Table Index: ", 0x00
+  elf_entry     db  `Entrypoint:\t\t0x`, 0x00
+  elf_phoff     db  `ProgHdr Offset:\t\t0x`, 0x00
+  elf_shoff     db  `SectHdr Offset:\t\t0x`, 0x00
+  elf_flags     db  `Flags:\t\t\t`, 0x00
+  elf_ehsize    db  `Sizeof ELF hdr:\t\t0x`, 0x00
+  elf_phentsize db  `Sizeof ProgHdr:\t\t0x`, 0x00
+  elf_phnum     db  `Num Of ProgHdr:\t\t0x`, 0x00
+  elf_shentsize db  `Sizeof SectHdr:\t\t0x`, 0x00
+  elf_shnum     db  `Num of SectHdr:\t\t0x`, 0x00
+  elf_shstrndx  db  `String Table Index:\t0x`, 0x00
 
   ; PROGRAM HDR
-  prg_banner    db  "__________________________________[ PROGRAM_HEADER ]", 0x00
+  prg_banner    db  "_____________________________________[ PROGRAM_HEADER ]", 0x00
   prg_type      db  "Type: ", 0x00
-  prg_flags     db  "Flags: ", 0x00
-  prg_offset    db  "Offset: ", 0x00
-  prg_vaddr     db  "Virtual Address: ", 0x00
-  prg_paddr     db  "Physical Address: ", 0x00
-  prg_filesz    db  "Size on Disk: ", 0x00
-  prg_memsz     db  "Size in Memory: ", 0x00
-  prg_align     db  "Alignment: ", 0x00
+  prg_flags     db  `Flags:\t`, 0x00
+  prg_offset    db  `Offset:\t\t\t0x`, 0x00
+  prg_vaddr     db  `Virtual Address:\t0x`, 0x00
+  prg_paddr     db  `Physical Address:\t0x`, 0x00
+  prg_filesz    db  `Size on Disk:\t\t0x`, 0x00
+  prg_memsz     db  `Size in Memory:\t\t0x`, 0x00
+  prg_align     db  `Alignment:\t\t0x`, 0x00
 
   ; SECTION HDR
-  sct_banner    db  "__________________________________[ SECTION_HEADER ]", 0x00
+  sct_banner    db  "_____________________________________[ SECTION_HEADER ]", 0x00
 
 section .text
 global  _start

@@ -128,6 +128,8 @@ println:
   mov   rax,  0x01
   syscall
 
+  pop   rax   ; inshallah this will fix error
+
   xor   rax,  rax
   mov   rsp,  rbp
   pop   rbp
