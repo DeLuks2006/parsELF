@@ -1,25 +1,53 @@
-<h1 align=center>parsELF</h1>
-<p align=center>A simple ELF parser written fully in NASM.</p>
 
-It parses a little endian ELF64. (will change soon)
+                                      .
+                      
+                          '      '    '    '      '
+                             '.   \   |   /   .'
+                           
+                        -  – ––– 7f 45 4c 46 ––– –  -
+                      
+                             .'   /   |   \   '.
+                          '      .    :    .      '
+                             .    /''   ''\    .
+                             /    \.'"""'./    \ 
+                             (    (x(ELF)x)    )
+                              \.''od@ | @bo''./
+                              / 8@8@8 | 8@8@8 \
+                        .'"'-. 008080 | 080080 .-'"'.
+                       /    ( 0??0??0 | 0??0??0 )    \
+                      (    ." ?::?:?: | :?:?::? ".    )
+                     .'   /  \ .:.:' /_\ ':.:. /  \    '.
+                         /    '.___.'._.'.___.'    \
+                         (                         )
+                          \                       /
+                          .'                     '.
+ 
+                       [ ParsELF – A NASM-ELF Parser ] 
 
-## Function List 
 
-- ITOA       - converts num to ASCII (decimal, hex)
-- PRINT      - prints some text
-- PRINTLN    - prints some text and a newline
-- PRINTC     - calls print and then println
+_/ About \____________________________________________________________________
 
-## About:
+ This *bombastic ELF parser* is just a little project to get comfortable with 
+ ELF files & programming in assembly.  Also this Project was  suggested to me
+ by vrzh and the other members of tmpout!
 
-This *bombastic ELF parser* is just a little project to get comfortable with assembly and ELF files. 
-Also this kind of project was suggested for me to do by vrzh and other members of tmpout!
 
-## Credit:
+_/ Usage \____________________________________________________________________
 
-Big thanks to polprog for helping out with the project and vrzh for getting me to do this!
+   ::: A Note on the Current State :::
 
-## Issues
-- PRINTH stuck in infinite loop and ITOA fails, needs proper error handling and stuff
+   Right now it is only able to parse the ELF and program headers of a 64bit 
+   little endian binary, however this will change in the near future!
 
-----------------------------------------------------------------------------------------------------
+ To, for example, parse a x86_64 little endian binary and print all its infos
+ you may run the following command:
+
+ .--------------------------------------------------------------------SHELL-.
+ | $ ./parself <your_binary>                                                |
+ '--------------------------------------------------------------------------'
+
+_/ Credits \__________________________________________________________________
+
+ Big thanks to  polprog for helping out with the project and vrzh for getting 
+ me to do this project in the first place!
+

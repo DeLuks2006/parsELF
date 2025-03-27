@@ -41,7 +41,7 @@ section   .rodata
 ; insert here later
 
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
-  parself       db  0x0A, "            [ ParsELF - A Mini-ELF Parser ]            ", 0x0A, 0x00
+  parself       db  0x0A, "            [ ParsELF - A NASM-ELF Parser ]            ", 0x0A, 0x00
 
   ; USAGE
   usg1  db  "Usage: ", 0x00

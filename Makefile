@@ -2,7 +2,7 @@ ASM = nasm
 AFLAGS = -f elf64 -g
 LD = ld
 SRC = src/main.asm
-OUT = main
+OUT = parself
 
 all:
 	@echo "[#] Assembling..."
