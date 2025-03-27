@@ -131,7 +131,7 @@ print_elfh:
 print_prgh:
   push  rbp
   mov   rbp,  rsp
-  ;sub   rbp,  0x38
+  ;sub   rbp,  0x38 ;<--- this fuck makes everything crash
 
   lea   rdi,  prg_type
   call  println
@@ -141,6 +141,12 @@ print_prgh:
 
   lea   rdi,  prg_offset
   call  println
+  ;mov   rdi,  st_prghdr
+  ;movzx rdi,  word [rdi + elf64_phdr.p_offset]
+  ;mov   rsi,  rsp
+  ;call  itoa
+  ;mov   rdi,  rsp
+  ;call  println
 
   lea   rdi,  prg_vaddr
   call  println
