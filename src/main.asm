@@ -79,7 +79,7 @@ section   .rodata
   elf_shstrndx  db  `String Table Index:\t0x`, 0x00
 
   ; PROGRAM HDR
-  prg_banner    db  "_____________________________________[ PROGRAM_HEADER ]", 0x00
+  prg_banner    db  "____________________________________[ PROGRAM_HEADERS ]", 0x00
   prg_type      db  "Type: ", 0x00
   prg_flags     db  `Flags:\t`, 0x00
   prg_offset    db  `Offset:\t\t\t0x`, 0x00
@@ -90,7 +90,7 @@ section   .rodata
   prg_align     db  `Alignment:\t\t0x`, 0x00
 
   ; SECTION HDR
-  sct_banner    db  "_____________________________________[ SECTION_HEADER ]", 0x00
+  sct_banner    db  "____________________________________[ SECTION_HEADERS ]", 0x00
 
 section .text
 global  _start
