@@ -15,6 +15,8 @@
 %include "src/hexdump.asm"
 %include "src/magic.asm"
 
+extern banner
+
 section   .bss
 ; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
   filename    resq  1
@@ -41,7 +43,7 @@ section   .rodata
 ; insert here later
 
 ; STRINGS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
-  parself       db  0x0A, "            [ ParsELF - A NASM-ELF Parser ]            ", 0x0A, 0x00
+  parself       db  0x0A,"                       [ ParsELF – A NASM-ELF Parser ]", 0x0A, 0x00
 
   ; USAGE
   usg1  db  "Usage: ", 0x00
@@ -58,7 +60,7 @@ section   .rodata
   err_p_offset    db  "[x] The value p_offset is greater than the filesize.", 0x0A, 0x00
 
   ; ELF HDR
-  elf_banner    db  "_________________________________________[ ELF_HEADER ]", 0x00
+  elf_banner    db  "________________________________________________________________[ ELF HEADER ]", 0x00
   elf_magic     db  `Magic: `, 0x00
   elf_format    db  "Format: ", 0x00 ; 32 or 64bit
   elf_endian    db  "Endian: ", 0x00 ; little or big
@@ -79,7 +81,7 @@ section   .rodata
   elf_shstrndx  db  `String Table Index:\t0x`, 0x00
 
   ; PROGRAM HDR
-  prg_banner    db  "____________________________________[ PROGRAM_HEADERS ]", 0x00
+  prg_banner    db  "___________________________________________________________[ PROGRAM_HEADERS ]", 0x00
   prg_type      db  "Type: ", 0x00
   prg_flags     db  `Flags:\t`, 0x00
   prg_offset    db  `Offset:\t\t\t0x`, 0x00
@@ -90,7 +92,7 @@ section   .rodata
   prg_align     db  `Alignment:\t\t0x`, 0x00
 
   ; SECTION HDR
-  sct_banner    db  "____________________________________[ SECTION_HEADERS ]", 0x00
+  sct_banner    db  "___________________________________________________________[ SECTION_HEADERS ]", 0x00
 
 section .text
 global  _start
@@ -100,6 +102,9 @@ _start:
   pop   rax                 ; Shove argc into RAX
   cmp   rax, 2              ; If argc != 2
   jne   usage               ; Go to usage prompt :)
+
+  lea   rdi,  banner
+  call  print
 
   lea   rdi,  parself
   call  println
