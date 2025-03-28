@@ -58,17 +58,19 @@ section   .rodata
   err_e_ehsize    db  "[x] Unexpected e_ehsize value", 0x0A, 0x00
   err_e_phentsize db  "[x] Unexpected e_phentsize value", 0x0A, 0x00
   err_p_offset    db  "[x] The value p_offset is greater than the filesize.", 0x0A, 0x00
+  err_e_shentsize db  "[x] Unexpected e_shentsize value", 0x0A, 0x00
+  err_sh_offset   db  "[x] The value sh_offset is greater than the filesize.", 0x0A, 0x00
 
   ; ELF HDR
   elf_banner    db  "________________________________________________________________[ ELF HEADER ]", 0x00
   elf_magic     db  `Magic: `, 0x00
-  elf_format    db  "Format: ", 0x00 ; 32 or 64bit
-  elf_endian    db  "Endian: ", 0x00 ; little or big
-  elf_version   db  "Version: ", 0x00
-  elf_trgt_os   db  "Target OS: ", 0x00
-  elf_trgt_v    db  "Target Version: ", 0x00
-  elf_filetype  db  "Type: ", 0x00 ; ET_DYN, ET_EXEC
-  elf_instrset  db  "Instruction Set: ", 0x00 ; MIPS, RISCV, x86
+  elf_format    db  `Format: `, 0x00 ; 32 or 64bit
+  elf_endian    db  `Endian: `, 0x00 ; little or big
+  elf_version   db  `Version: `, 0x00
+  elf_trgt_os   db  `Target OS: `, 0x00
+  elf_trgt_v    db  `Target Version: `, 0x00
+  elf_filetype  db  `Type: `, 0x00 ; ET_DYN, ET_EXEC
+  elf_instrset  db  `Instruction Set: `, 0x00 ; MIPS, RISCV, x86
   elf_entry     db  `Entrypoint:\t\t0x`, 0x00
   elf_phoff     db  `ProgHdr Offset:\t\t0x`, 0x00
   elf_shoff     db  `SectHdr Offset:\t\t0x`, 0x00
@@ -82,7 +84,7 @@ section   .rodata
 
   ; PROGRAM HDR
   prg_banner    db  "___________________________________________________________[ PROGRAM_HEADERS ]", 0x00
-  prg_type      db  "Type: ", 0x00
+  prg_type      db  `Type: `, 0x00
   prg_flags     db  `Flags:\t`, 0x00
   prg_offset    db  `Offset:\t\t\t0x`, 0x00
   prg_vaddr     db  `Virtual Address:\t0x`, 0x00
@@ -93,6 +95,16 @@ section   .rodata
 
   ; SECTION HDR
   sct_banner    db  "___________________________________________________________[ SECTION_HEADERS ]", 0x00
+  sct_name      db `Name: `, 0x00
+  sct_type      db `Type: `, 0x00
+  sct_flags     db `Flags: `, 0x00
+  sct_addr      db `Address: `, 0x00
+  sct_offset    db `Offset: `, 0x00
+  sct_size      db `Size: `, 0x00
+  sct_link      db `Link: `, 0x00
+  sct_info      db `Info: `, 0x00
+  sct_addralign db `Alignment: `, 0x00
+  sct_entsize   db `Entry Size: `, 0x00
 
 section .text
 global  _start
@@ -175,13 +187,12 @@ _start:
   lea   rdi,  prg_banner
   call  println
 
-  mov   r12,  [mapped_bin]                      ; get base
-  mov   rbx,  [r12 + elf64_hdr.e_phoff]         ; offset
-  add   r12,  rbx                               ; 1st prghdr = base + offset 
+  mov   r12,  [st_elfhdr + elf64_hdr.e_phoff]   ; offset
+  add   r12,  [mapped_bin]                      ; get base
   
   mov   rcx,  [mapped_bin]
   movzx r8,   word [rcx + elf64_hdr.e_phentsize]
-  movzx rdx,   word [rcx + elf64_hdr.e_phnum] ; get e_phnum
+  movzx rdx,  word [rcx + elf64_hdr.e_phnum]      ; get e_phnum
   mov   [phnum], dx                     ; phnum
 
   ph_loop:
@@ -223,7 +234,54 @@ _start:
 
 ; ________________________________________________[ PARSING SECTION HEADERS ]_
 
-; ...
+  lea   rdi,  sct_banner
+  call  println
+
+  mov   r12,  [st_elfhdr + elf64_hdr.e_phoff]
+  add   r12,  [mapped_bin]
+
+  mov   rcx,  [mapped_bin]
+  movzx r8,   word  [rcx + elf64_hdr.e_shentsize]
+  movzx rdx,  word  [rcx + elf64_hdr.e_shnum]
+  mov   [shnum], dx
+
+  mov   dword [counter], 0x00
+
+  sh_loop:
+    mov   rsi,  r12
+    mov   rdi,  st_scthdr
+    mov   rcx,  r8
+
+    cmp   rcx,  SCTHDR64_SIZE
+    jne   e_shentsize_error
+
+    rep   movsb
+
+    mov   r9,   [st_scthdr + elf64_shdr.sh_offset] ; I do errors
+    mov   r10,  [st_stat + stat.st_size]
+    cmp   r9,   [st_stat + stat.st_size]
+    jge   sh_offset_error
+
+    call  print_scth
+
+    ; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
+    push  rax
+    mov   rdx,  0x02
+    push  0x0A
+    mov   rsi,  rsp  
+    mov   rdi,  0x01
+    mov   rax,  0x01
+    syscall
+    pop   rax
+    pop   rax
+    ; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
+
+    inc   dword [counter]
+    push  r12
+    mov   r12d, [counter]
+    cmp   r12,  [shnum]
+    pop   r12
+    jne   sh_loop
 
 ; ___________________________________________________________[ EXIT ROUTINE ]_
 
@@ -265,6 +323,12 @@ e_phentsize_error:
 
 p_offset_error:
   cleanup [mapped_bin], st_stat, err_p_offset
+
+e_shentsize_error:
+  cleanup [mapped_bin], st_stat, err_e_shentsize
+
+sh_offset_error:
+  cleanup [mapped_bin], st_stat, err_sh_offset
 
 error:
   xor   rdi,  rdi       

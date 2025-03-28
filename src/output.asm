@@ -209,3 +209,53 @@ print_prgh:
   mov   rsp,  rbp
   pop   rbp
   ret
+
+print_scth:
+  push  rbp
+  mov   rbp,  rsp
+  sub   rsp,  0x40
+
+  lea   rdi,  sct_name
+  call  print
+  ;.sh_name          resd 0x01; ; dereference me - im a offset in shstrtab
+
+  lea   rdi,  sct_type
+  call  print
+  ;.sh_type          resd 0x01; ; fancy output me
+
+  lea   rdi,  sct_flags
+  call  print
+  ;.sh_flags         resq 0x01; ; qword - hexdump
+
+  lea   rdi,  sct_addr
+  call  print
+  ;.sh_addr          resq 0x01; ; qword
+
+  lea   rdi,  sct_offset
+  call  print
+  ;.sh_offset        resq 0x01; ; qword
+
+  lea   rdi,  sct_size
+  call  print
+  ;.sh_size          resq 0x01; ; qword
+
+  lea   rdi,  sct_link
+  call  print
+  ;.sh_link          resd 0x01; ; dword
+
+  lea   rdi,  sct_info
+  call  print
+  ;.sh_info          resd 0x01; ; dword
+
+  lea   rdi,  sct_addralign
+  call  print
+  ;.sh_addralign     resq 0x01; ; qword
+
+  lea   rdi,  sct_entsize
+  call  print
+  ;.sh_entsize       resq 0x01; ; qword
+
+  xor   rax,  rax
+  mov   rsp,  rbp
+  pop   rbp
+  ret
