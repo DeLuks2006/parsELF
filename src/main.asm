@@ -237,7 +237,7 @@ _start:
   lea   rdi,  sct_banner
   call  println
 
-  mov   r12,  [st_elfhdr + elf64_hdr.e_phoff]
+  mov   r12,  [st_elfhdr + elf64_hdr.e_shoff]
   add   r12,  [mapped_bin]
 
   mov   rcx,  [mapped_bin]
