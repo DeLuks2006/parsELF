@@ -55,9 +55,13 @@ section   .rodata
   ; ERROR
   err_small       db  "[x] Filesize too small (this time size DOES MATTER)", 0x0A, 0x00
   err_magic       db  "[x] Invalid ELF magic :P", 0x0A, 0x00
+  err_e_phoff     db  "[x] The offset to the program headers is invalid.", 0x0A, 0x00
+  err_e_phnum     db  "[x] Invalid e_phnum value", 0x0A, 0x00
   err_e_ehsize    db  "[x] Unexpected e_ehsize value", 0x0A, 0x00
   err_e_phentsize db  "[x] Unexpected e_phentsize value", 0x0A, 0x00
   err_p_offset    db  "[x] The value p_offset is greater than the filesize.", 0x0A, 0x00
+  err_e_shoff     db  "[x] The offset to the section headers is invalid.", 0x0A, 0x00
+  err_e_shnum     db  "[x] Invalid e_shnum", 0x0A, 0x00
   err_e_shentsize db  "[x] Unexpected e_shentsize value", 0x0A, 0x00
   err_sh_offset   db  "[x] The value sh_offset is greater than the filesize.", 0x0A, 0x00
 
@@ -188,12 +192,23 @@ _start:
   call  println
 
   mov   r12,  [st_elfhdr + elf64_hdr.e_phoff]   ; offset
+  cmp   r12,  [st_stat + stat.st_size]
+  jge   e_phoff_error
+  cmp   r12,  0x00
+  jle   e_phoff_error
+
   add   r12,  [mapped_bin]                      ; get base
   
   mov   rcx,  [mapped_bin]
   movzx r8,   word [rcx + elf64_hdr.e_phentsize]
   movzx rdx,  word [rcx + elf64_hdr.e_phnum]      ; get e_phnum
-  mov   [phnum], dx                     ; phnum
+  mov   [phnum],  dx                     ; phnum
+
+  cmp   dx,  0x00
+  jle    e_phnum_error
+  cmp   r8,  0x00
+  jle    e_phentsize_error
+
 
   ph_loop:
     mov   rsi,  r12         ; src = mapped_bin + offset
@@ -238,12 +253,22 @@ _start:
   call  println
 
   mov   r12,  [st_elfhdr + elf64_hdr.e_shoff]
+  cmp   r12,  [st_stat + stat.st_size]
+  jge   e_shoff_error
+  cmp   r12,  0x00
+  jle   e_shoff_error
+
   add   r12,  [mapped_bin]
 
   mov   rcx,  [mapped_bin]
   movzx r8,   word  [rcx + elf64_hdr.e_shentsize]
   movzx rdx,  word  [rcx + elf64_hdr.e_shnum]
   mov   [shnum], dx
+
+  cmp   dx,  0x00
+  jle    e_shnum_error
+  cmp   r8,  0x00
+  jle    e_shentsize_error
 
   mov   dword [counter], 0x00
 
@@ -318,11 +343,23 @@ magic_error:
 e_ehsize_error:
   cleanup [mapped_bin], st_stat, err_e_ehsize
 
+e_phoff_error:
+  cleanup [mapped_bin], st_stat, err_e_phoff
+
+e_phnum_error:
+  cleanup [mapped_bin], st_stat, err_e_phnum
+
 e_phentsize_error:
   cleanup [mapped_bin], st_stat, err_e_phentsize
 
 p_offset_error:
   cleanup [mapped_bin], st_stat, err_p_offset
+
+e_shoff_error:
+  cleanup [mapped_bin], st_stat, err_e_shoff
+
+e_shnum_error:
+  cleanup [mapped_bin], st_stat, err_e_shnum
 
 e_shentsize_error:
   cleanup [mapped_bin], st_stat, err_e_shentsize
