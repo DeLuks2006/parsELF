@@ -1,7 +1,6 @@
 ; TODO: 
 ; - compare ei_data and e_machine using lookup table or something
 ; - handle 32bit
-; - go over section headers
 ; - take big-endian into account
 ; ...
 ; takin some inspiration from travgm's parser: 
@@ -67,7 +66,7 @@ section   .rodata
 
   ; ELF HDR
   elf_banner    db  "________________________________________________________________[ ELF HEADER ]", 0x00
-  elf_magic     db  `Magic: `, 0x00
+  elf_magic     db  `Magic:\t\t\t`, 0x00
   elf_format    db  `Format: `, 0x00 ; 32 or 64bit
   elf_endian    db  `Endian: `, 0x00 ; little or big
   elf_version   db  `Version: `, 0x00
@@ -89,7 +88,7 @@ section   .rodata
   ; PROGRAM HDR
   prg_banner    db  "___________________________________________________________[ PROGRAM_HEADERS ]", 0x00
   prg_type      db  `Type: `, 0x00
-  prg_flags     db  `Flags:\t`, 0x00
+  prg_flags     db  `Flags:\t\t\t`, 0x00
   prg_offset    db  `Offset:\t\t\t0x`, 0x00
   prg_vaddr     db  `Virtual Address:\t0x`, 0x00
   prg_paddr     db  `Physical Address:\t0x`, 0x00
@@ -101,14 +100,14 @@ section   .rodata
   sct_banner    db  "___________________________________________________________[ SECTION_HEADERS ]", 0x00
   sct_name      db `Name: `, 0x00
   sct_type      db `Type: `, 0x00
-  sct_flags     db `Flags: `, 0x00
-  sct_addr      db `Address: `, 0x00
-  sct_offset    db `Offset: `, 0x00
-  sct_size      db `Size: `, 0x00
-  sct_link      db `Link: `, 0x00
-  sct_info      db `Info: `, 0x00
-  sct_addralign db `Alignment: `, 0x00
-  sct_entsize   db `Entry Size: `, 0x00
+  sct_flags     db `Flags:\t\t`, 0x00
+  sct_addr      db `Address:\t0x`, 0x00
+  sct_offset    db `Offset:\t\t0x`, 0x00
+  sct_size      db `Size:\t\t0x`, 0x00
+  sct_link      db `Link:\t\t0x`, 0x00
+  sct_info      db `Info:\t\t0x`, 0x00
+  sct_addralign db `Alignment:\t0x`, 0x00
+  sct_entsize   db `Entry Size:\t0x`, 0x00
 
 section .text
 global  _start
@@ -288,6 +287,8 @@ _start:
     jge   sh_offset_error
 
     call  print_scth
+
+    add   r12,  SCTHDR64_SIZE ; point RAX to next hdr
 
     ; TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
     push  rax

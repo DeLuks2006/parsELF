@@ -63,3 +63,13 @@
   call  println
   jmp   error
 %endmacro
+
+%macro print_num 3
+  mov   rdi,  %1          ; your struct
+  mov   rdi,  [rdi + %2]  ; your struct offset/member
+  mov   rsi,  rsp
+  mov   rdx,  %3          ; your buffer size
+  call  itoa
+  mov   rdi,  rsp
+  call  println
+%endmacro
