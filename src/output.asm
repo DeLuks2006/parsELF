@@ -39,25 +39,15 @@ print_elfh:
 
   lea   rdi,  elf_entry
   call  print
-  print_num   st_elfhdr,  elf64_hdr.e_entry, 0x10
+  print_num   st_elfhdr, elf64_hdr.e_entry, 0x10
 
   lea   rdi,  elf_phoff
   call  print
-  mov   rdi,  st_elfhdr
-  mov   rdi,  [rdi + elf64_hdr.e_phoff]
-  mov   rsi,  rsp
-  call  itoa
-  mov   rdi,  rsp
-  call  println
+  print_num   st_elfhdr, elf64_hdr.e_phoff, 0x10
 
   lea   rdi,  elf_shoff
   call  print
-  lea   rdi,  st_elfhdr
-  mov   rdi,  [rdi + elf64_hdr.e_shoff]
-  mov   rsi,  rsp
-  call  itoa
-  mov   rdi,  rsp
-  call  println
+  print_num   st_elfhdr, elf64_hdr.e_shoff, 0x10
 
   lea   rdi,  elf_flags
   call  print

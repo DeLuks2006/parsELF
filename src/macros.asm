@@ -14,6 +14,13 @@
 %define PROT_READ   0x01
 %define MAP_PRIVATE 0x02
 
+; CUSTOM FLAGS
+%define ENABLE_ELFH 0x01
+%define ENABLE_PRGH 0x02
+%define ENABLE_SCTH 0x04
+%define ENABLE_ALL  0x07
+%define HELP_MENU   0x08
+
 ; WRAPPERS -------------------------------------------------------------------
 %macro open 2           ; open(filename, flags)
   mov   rdi, %1         ; 1st arg: filename pointer
@@ -72,4 +79,12 @@
   call  itoa
   mov   rdi,  rsp
   call  println
+%endmacro
+
+%macro check_flag 2
+  movzx rax,  byte [flags]
+  mov   rbx,  %1
+  and   rax,  rbx
+  cmp   rax,  0x00
+  je    %2
 %endmacro

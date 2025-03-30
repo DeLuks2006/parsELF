@@ -33,6 +33,7 @@ section   .bss
 section   .data
 
   counter dd 0
+  flags   db 0
 
 section   .rodata
 ; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
@@ -45,8 +46,12 @@ section   .rodata
   parself       db  0x0A,"                       [ ParsELF – A NASM-ELF Parser ]", 0x0A, 0x00
 
   ; USAGE
-  usg1  db  "Usage: ", 0x00
-  usg2  db  " <FILE>", 0x0A, 0x00
+  usg1  db  "Usage: ./parself <FILE> [FLAGS]", 0x00
+  help_menu db  `\nFlags:\n`
+            db  `\t-h - print this help menu\n`
+            db  `\t-e - print ELF header\n`
+            db  `\t-p - print program headers\n`
+            db  `\t-s - print section headers\n`, 0x00
 
   ; INFO
   info  db  "Opening: ", 0x00
@@ -115,8 +120,77 @@ global  _start
 _start:
 ; CHECK ARGC
   pop   rax                 ; Shove argc into RAX
-  cmp   rax, 2              ; If argc != 2
-  jne   usage               ; Go to usage prompt :)
+  cmp   rax, 0x02           ; If argc <= 2
+  jl    usage               ; Go to usage prompt :)
+
+  mov   rsi,  [rsp + 0x08]  ; argv[1]
+  mov   [filename], rsi     ; filename = argv[1]
+
+  pop   rcx                 ; get rid of argv[0]
+  pop   rcx                 ; get rid of argv[1]
+
+  sub   rax,  0x02
+
+  mov   [counter],  rax
+  cmp   rax,  0x00
+  je   .set_all
+
+  xor   rcx,  rcx
+  
+  ; NOTE: maybe later rewrite below to jmp-table (somehow)
+  .parse_args:
+    pop   rax
+    inc   rax                       ; skip '-'
+    
+    movzx rax,  byte [rax]          ; get char
+    
+    cmp   al, 'h'
+    je    .set_help
+    cmp   al, 'e'
+    je    .set_elfh
+    cmp   al, 'p'
+    je    .set_prgh
+    cmp   al, 's'
+    je    .set_scth
+
+    jmp   .set_help
+
+    .parse_next_arg:
+
+    movzx r15, byte [counter]
+    inc   rcx                       ; counter + 1
+    cmp   rcx, r15                  ; counter == 0
+    jne   .parse_args               ; if not go again
+    jmp   .exit_parse_args
+
+.set_elfh:
+  or    byte [flags],     ENABLE_ELFH
+  jmp .parse_next_arg
+
+.set_prgh:
+  or    byte [flags],     ENABLE_PRGH
+  jmp .parse_next_arg
+
+.set_scth:
+  or    byte [flags],     ENABLE_SCTH
+  jmp .parse_next_arg
+
+.set_help:
+  or    byte [flags],     HELP_MENU
+  jmp .parse_next_arg
+
+.set_all:
+  mov   byte  [flags],    ENABLE_ALL
+
+.exit_parse_args:
+  mov   dword [counter],  0x00
+  
+; ------------------------------
+  movzx rax,  byte [flags]
+  mov   rbx,  HELP_MENU
+  and   rax,  rbx
+  cmp   rax,  0x00            ; if -h flag used
+  jne   usage                 ; goto help menu
 
   lea   rdi,  banner
   call  print
@@ -124,10 +198,8 @@ _start:
   lea   rdi,  parself
   call  println
 
-  lea   rdi,  [rel info]    ; rdi = "opening ..."
-  mov   rsi,  [rsp + 0x08]  ; rsi = argv[1]
-
-  mov   [filename], rsi     ; Filename = argv[1]
+  lea   rdi,  [rel info]      ; rdi = "opening ..."
+  mov   rsi,  [rel filename]  ; rsi = argv[1]
 
   call  printc              ; Printc = "print combo"
 
@@ -178,12 +250,18 @@ _start:
     cmp   rcx,  0x04
     jne   magic_validation
 
+  ; Check if we want to output elf header
+  check_flag ENABLE_ELFH, skip_elfh
+
   ; Output ELF banner
   lea   rdi,  elf_banner
   call  println
 
   ; Output all members of ELF header
   call  print_elfh
+
+skip_elfh:
+  check_flag  ENABLE_PRGH, skip_prgh
 ; ________________________________________________[ PARSING PROGRAM HEADERS ]_
 
   ; Output program header banner
@@ -247,6 +325,8 @@ _start:
     jne   ph_loop
 
 ; ________________________________________________[ PARSING SECTION HEADERS ]_
+skip_prgh:
+  check_flag ENABLE_SCTH, skip_scth
 
   lea   rdi,  sct_banner
   call  println
@@ -310,7 +390,7 @@ _start:
     jne   sh_loop
 
 ; ___________________________________________________________[ EXIT ROUTINE ]_
-
+skip_scth:
   ; UNMAP THE FILE
   munmap  [mapped_bin], st_stat
 
@@ -321,14 +401,12 @@ exit:
   syscall
 
 usage:
-  lea   rdi,  usg1      ; "Usage: "
-  call  print
-
-  pop   rdi             ; argv[0]
-  call  print
-
-  lea   rdi,  usg2      ; " <FILE>"
+  lea   rdi,  usg1      ; "Usage: ./parself ..."
   call  println
+
+  lea   rdi,  help_menu ;
+  call  println
+
   jmp   error
 
 size_error:
