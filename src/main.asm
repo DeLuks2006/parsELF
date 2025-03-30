@@ -126,6 +126,9 @@ _start:
   mov   rsi,  [rsp + 0x08]  ; argv[1]
   mov   [filename], rsi     ; filename = argv[1]
 
+  cmp   byte [rsi], '-'
+  je    usage
+
   pop   rcx                 ; get rid of argv[0]
   pop   rcx                 ; get rid of argv[1]
 
