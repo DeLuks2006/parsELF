@@ -1,6 +1,7 @@
 # ignore compiled bins
-main
-main.o
+*.o
 
-test
+parself
+
 test/*
+

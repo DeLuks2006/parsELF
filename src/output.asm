@@ -39,36 +39,21 @@ print_elfh:
 
   lea   rdi,  elf_entry
   call  print
-  lea   rdi,  st_elfhdr
-  mov   rdi,  [rdi + elf64_hdr.e_entry]
-  mov   rsi,  rsp
-  call  itoa
-  mov   rdi,  rsp
-  call  println
+  print_num   st_elfhdr, elf64_hdr.e_entry, 0x10
 
   lea   rdi,  elf_phoff
   call  print
-  mov   rdi,  st_elfhdr
-  mov   rdi,  [rdi + elf64_hdr.e_phoff]
-  mov   rsi,  rsp
-  call  itoa
-  mov   rdi,  rsp
-  call  println
+  print_num   st_elfhdr, elf64_hdr.e_phoff, 0x10
 
   lea   rdi,  elf_shoff
   call  print
-  lea   rdi,  st_elfhdr
-  mov   rdi,  [rdi + elf64_hdr.e_shoff]
-  mov   rsi,  rsp
-  call  itoa
-  mov   rdi,  rsp
-  call  println
+  print_num   st_elfhdr, elf64_hdr.e_shoff, 0x10
 
   lea   rdi,  elf_flags
   call  print
   lea   rdi,  st_elfhdr
   add   rdi,  elf64_hdr.e_flags
-  mov   rsi,  0x4
+  mov   rsi,  0x04
   mov   rdx,  rsp
   call  hexdump
   mov   rdi,  rsp
@@ -120,6 +105,12 @@ print_elfh:
   call  println
 
   lea   rdi,  elf_shstrndx
+  call  print
+  mov   rdi, st_elfhdr
+  movzx rdi, word [rdi + elf64_hdr.e_shstrndx]
+  mov   rsi, rsp
+  call  itoa
+  mov   rdi, rsp
   call  println
 
   xor   rax,  rax
@@ -131,31 +122,102 @@ print_elfh:
 print_prgh:
   push  rbp
   mov   rbp,  rsp
-  ;sub   rbp,  0x38
+  sub   rsp,  0x38
 
   lea   rdi,  prg_type
   call  println
 
   lea   rdi,  prg_flags
+  call  print
+  lea   rdi,  st_scthdr
+  add   rdi,  elf64_phdr.p_flags
+  mov   rsi,  0x04
+  mov   rdx,  rsp
+  call  hexdump
+  mov   rdi,  rsp
   call  println
 
   lea   rdi,  prg_offset
-  call  println
+  call  print
+  print_num   st_prghdr,  elf64_phdr.p_offset, 0x10
 
   lea   rdi,  prg_vaddr
-  call  println
+  call  print
+  print_num   st_prghdr,  elf64_phdr.p_vaddr, 0x10
 
   lea   rdi,  prg_paddr
-  call  println
+  call  print
+  print_num   st_prghdr,  elf64_phdr.p_paddr, 0x10
 
   lea   rdi,  prg_filesz
-  call  println
+  call  print
+  print_num   st_prghdr,  elf64_phdr.p_filesz, 0x10
 
   lea   rdi,  prg_memsz
-  call  println
+  call  print
+  print_num   st_prghdr,  elf64_phdr.p_memsz, 0x10
 
   lea   rdi,  prg_align
+  call  print
+  print_num   st_prghdr,  elf64_phdr.p_align, 0x10
+
+  xor   rax,  rax
+  mov   rsp,  rbp
+  pop   rbp
+  ret
+
+print_scth:
+  push  rbp
+  mov   rbp,  rsp
+  sub   rsp,  0x40
+
+  lea   rdi,  sct_name
   call  println
+  ;.sh_name          resd 0x01; ; dereference me - im a offset in shstrtab
+
+  lea   rdi,  sct_type
+  call  println
+  ;.sh_type          resd 0x01; ; fancy output me
+
+  lea   rdi,  sct_flags
+  call  print
+  ;.sh_flags         resq 0x01; ; qword - hexdump
+  lea   rdi,  st_scthdr
+  add   rdi,  elf64_shdr.sh_flags
+  mov   rsi,  0x08
+  mov   rdx,  rsp
+  call  hexdump
+  mov   rdi,  rsp
+  call  println
+
+  lea   rdi,  sct_addr
+  call  print
+  mov   r10,  0x02
+  print_num   st_scthdr,  elf64_shdr.sh_addr, 0x10
+
+  lea   rdi,  sct_offset
+  call  print
+  print_num   st_scthdr, elf64_shdr.sh_offset, 0x10
+
+  lea   rdi,  sct_size
+  call  print
+  print_num   st_scthdr, elf64_shdr.sh_size, 0x10
+
+  lea   rdi,  sct_link
+  call  print
+  print_num   st_scthdr, elf64_shdr.sh_link, 0x08
+
+  lea   rdi,  sct_info
+  call  print
+  print_num   st_scthdr, elf64_shdr.sh_info, 0x08
+
+  lea   rdi,  sct_addralign
+  call  print
+  print_num   st_scthdr, elf64_shdr.sh_addralign, 0x10
+
+  lea   rdi,  sct_entsize
+  call  print
+  print_num   st_scthdr, elf64_shdr.sh_entsize, 0x10
 
   xor   rax,  rax
   mov   rsp,  rbp

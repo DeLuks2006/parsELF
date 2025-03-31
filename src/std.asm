@@ -128,6 +128,8 @@ println:
   mov   rax,  0x01
   syscall
 
+  pop   rax   ; inshallah this will fix error
+
   xor   rax,  rax
   mov   rsp,  rbp
   pop   rbp
@@ -152,47 +154,3 @@ printc:
   pop   rbp
   ret
 
-; PRINTH --------------------------------------------------------------------
-; PRINT HEX
-; prints hexdump like output
-
-; args: rdi fd, rsi offset, rdx no_of_bytes
-
-printh:
-  push  rbp
-  mov   rbp,  rsp
-  ; sub   rbp,  0x20      ; alloc space
-  ; sub   rbp,  rdx
-
-  ;- VARIABLES ----------------------;
-  ; rbp-0x08 = fd                    ;
-  ; rbp-0x10 = offset                ; 
-  ; rbp-0x18 = count                 ;
-  ; rbp-0x20 = byte                  ;
-  ; rbp-0x?? = buff   ( 0x20 + rdx ) ;
-  ; rcx = n                          ;
-  ;----------------------------------;
-
-  ; mov   [rbp-0x08], rdi ; fd
-  ; mov   [rbp-0x10], rsi ; offset
-  ; mov   [rbp-0x18], rdx ; no of bytes
-
-;  void print_hex(int fd, int offset, int length) {
-;  --* SNIP *--
-;    loopy_loop:
-;       byte = *buffer + n;
-;       printf("%x", byte);
-;       printf(" ");
-;       n++;
-;
-;       if (n <= length) {
-;         goto loopy_loop;
-;       }
-;
-;    puts("");
-;  }
-
-  xor   rax,  rax
-  mov   rsp,  rbp
-  pop   rbp
-  ret

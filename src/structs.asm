@@ -89,31 +89,31 @@ endstruc
 %define PRGHDR32_SIZE 32
 
 struc elf64_shdr
-  .sh_name          resd 0x01;
-  .sh_type          resd 0x01;
-  .sh_flags         resq 0x01;
-  .sh_addr          resq 0x01;
-  .sh_offset        resq 0x01;
-  .sh_size          resq 0x01;
-  .sh_link          resd 0x01;
-  .sh_info          resd 0x01;
-  .sh_addralign     resq 0x01;
-  .sh_entsize       resq 0x01;
+  .sh_name          resd 0x01
+  .sh_type          resd 0x01
+  .sh_flags         resq 0x01
+  .sh_addr          resq 0x01
+  .sh_offset        resq 0x01
+  .sh_size          resq 0x01
+  .sh_link          resd 0x01
+  .sh_info          resd 0x01
+  .sh_addralign     resq 0x01
+  .sh_entsize       resq 0x01
 endstruc
 
 %define SCTHDR64_SIZE 64
 
 struc elf32_shdr
-  .sh_name          resd 0x01;
-  .sh_type          resd 0x01;
-  .sh_flags         resd 0x01;
-  .sh_addr          resd 0x01;
-  .sh_offset        resd 0x01;
-  .sh_size          resd 0x01;
-  .sh_link          resd 0x01;
-  .sh_info          resd 0x01;
-  .sh_addralign     resd 0x01;
-  .sh_entsize       resd 0x01;
+  .sh_name          resd 0x01
+  .sh_type          resd 0x01
+  .sh_flags         resd 0x01
+  .sh_addr          resd 0x01
+  .sh_offset        resd 0x01
+  .sh_size          resd 0x01
+  .sh_link          resd 0x01
+  .sh_info          resd 0x01
+  .sh_addralign     resd 0x01
+  .sh_entsize       resd 0x01
 endstruc
 
 %define SCTHDR32_SIZE 40
