@@ -48,6 +48,7 @@ section   .rodata
   ; USAGE
   usg1  db  "Usage: ./parself <FILE> [FLAGS]", 0x00
   help_menu db  `\nFlags:\n`
+            db  `\t-x - print banner\n`
             db  `\t-h - print this help menu\n`
             db  `\t-e - print ELF header\n`
             db  `\t-p - print program headers\n`
@@ -147,6 +148,8 @@ _start:
     
     movzx rax,  byte [rax]          ; get char
     
+    cmp   al, 'x'
+    je    .set_banner
     cmp   al, 'h'
     je    .set_help
     cmp   al, 'e'
@@ -182,6 +185,10 @@ _start:
   or    byte [flags],     HELP_MENU
   jmp .parse_next_arg
 
+.set_banner:
+  or    byte [flags],     0x10
+  jmp .parse_next_arg
+
 .set_all:
   mov   byte  [flags],    ENABLE_ALL
 
@@ -195,6 +202,12 @@ _start:
   cmp   rax,  0x00            ; if -h flag used
   jne   usage                 ; goto help menu
 
+  movzx rax,  byte [flags]
+  mov   rbx,  0x10
+  and   rax,  rbx
+  cmp   rax,  0x00
+  je    skip_banner
+
   lea   rdi,  banner
   call  print
 
@@ -205,6 +218,16 @@ _start:
   mov   rsi,  [rel filename]  ; rsi = argv[1]
 
   call  printc              ; Printc = "print combo"
+
+  movzx rax,  byte [flags]
+  mov   rbx,  0x07
+  xor   rax,  rbx
+  cmp   rax,  0x17
+  jl    skip_banner
+
+  or    byte [flags], 0x0F
+
+skip_banner:
 
 ; _______________________________________________________[ READING THE FILE ]_
 
