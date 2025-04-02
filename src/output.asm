@@ -1,5 +1,6 @@
 %include "src/structs.asm"
-
+%include "src/magic.asm"
+section .text
 print_elfh:
   push  rbp
   mov   rbp,  rsp
@@ -20,7 +21,29 @@ print_elfh:
   call  println
 
   lea   rdi,  elf_endian
-  call  println
+  call  print
+  
+  movzx  rax, byte [endian]
+  cmp  rax, LITTLE_ENDIAN
+  je   _le
+  lea  rdi, msg_big
+  call print
+  jmp  _next
+_le:  
+  lea  rdi, msg_little
+  call print
+_next:  
+
+  movzx   rax, byte [bitness]
+  cmp rax, BITS_32
+  je _b32
+  lea rdi, msg_bits64
+  call println
+  jmp _next2
+_b32: 
+  lea rdi, msg_bits32
+  call println
+_next2: 
 
   lea   rdi,  elf_version
   call  println

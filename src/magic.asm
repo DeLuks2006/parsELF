@@ -1,8 +1,14 @@
+%ifndef __MAGIC_ASM
+%define __MAGIC_ASM
+
 ; EP TABLE MAGIC NUMBERS -----------------------------------------
 
 %define UNKNOWN_ENDIAN  0x00
 %define BIG_ENDIAN      0x01
 %define LITTLE_ENDIAN   0x02
+
+%define BITS_32          0x00
+%define BITS_64          0x01
 
 %define EM_NONE	        	0	  ; No machine 
 %define EM_M32	        	1	  ; AT&T WE 32100 
@@ -190,3 +196,12 @@
   
 
 ; ...
+
+
+section .data
+;; This is an ep_table array
+  machine_bits_map db EM_386,    LITTLE_ENDIAN, BITS_32
+                   db EM_X86_64, LITTLE_ENDIAN, BITS_64
+                   db EM_MIPS,   BIG_ENDIAN,    BITS_32
+  machine_bits_map_end  
+%endif

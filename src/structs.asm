@@ -1,3 +1,5 @@
+%ifndef __STRUCTS_ASM
+%define __STRUCTS_ASM
 ; THIS FILE IS INTENDED FOR STRUCT DEFINITIONS
 
 ; This one I stole from TMZ's "Nasty"
@@ -127,6 +129,7 @@ endstruc
 
 %define EPTAB_SIZE 2
 
+
 ; ELF32/64 handling for offset tables  
 
 ; Offset table for ELF32 and ELF64 structs
@@ -149,9 +152,9 @@ endstruc
 %define OFF_E_SHENTSIZE 11
 %define OFF_E_SHSTRNDX 12
 
+section .data
 ; This table contains the offsets for 32 bit ELFs
-elf32_ehdr_offsets
-  db 0                  ; uchar[16] e_ident  +16
+  elf32_ehdr_offsets db 0                  ; uchar[16] e_ident  +16
   db 16                 ; uint16_t e_type    +2
   db 18                 ; uint16_t e_machine +2
   db 20                 ; uint32_t e_version +4
@@ -166,8 +169,7 @@ elf32_ehdr_offsets
   db 48                 ; uint16_t e_shstrndx +2
 
 ; This table contains the offsets for 64 bit ELFs
-elf64_ehdr_offsets
-  db 0                  ; uchar[16] e_ident  +16
+  elf64_ehdr_offsets db 0                  ; uchar[16] e_ident  +16
   db 16                 ; uint16_t e_type    +2
   db 18                 ; uint16_t e_machine +2
   db 20                 ; uint32_t e_version +4
@@ -180,3 +182,6 @@ elf64_ehdr_offsets
   db 56                 ; uint16_t e_phnum   +2
   db 58                 ; uint16_t e_shentsize +2
   db 60                 ; uint16_t e_shstrndx +2
+
+
+%endif

@@ -34,6 +34,8 @@ section   .data
 
   counter dd 0
   flags   db 0
+  endian  db 0x55
+  bitness db 0x55
 
 section   .rodata
 ; VARIABLES ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
@@ -74,7 +76,11 @@ section   .rodata
   elf_banner    db  "________________________________________________________________[ ELF HEADER ]", 0x00
   elf_magic     db  `Magic:\t\t\t`, 0x00
   elf_format    db  `Format: `, 0x00 ; 32 or 64bit
-  elf_endian    db  `Endian: `, 0x00 ; little or big
+  elf_endian    db  `Endian: \t\t`, 0x00 ; little or big
+  msg_little    db  `little, `, 0x00 
+  msg_big       db  `big, `, 0x00
+  msg_bits32    db  `32-bit`, 0x00
+  msg_bits64    db  `64-bit`, 0x00
   elf_version   db  `Version: `, 0x00
   elf_trgt_os   db  `Target OS: `, 0x00
   elf_trgt_v    db  `Target Version: `, 0x00
@@ -249,17 +255,34 @@ skip_banner:
   mov   [mapped_bin], rax     ; Save loaded file in "mapped_bin"
 
   close [fd]
-
 ; _____________________________________________________[ PARSING ELF HEADER ]_
   
   ; Load mmap-ed file into struct
   mov   rsi,  [mapped_bin]                    ; src  = mapped_bin
-  mov   rdi,  st_elfhdr                       ; dest = st_elfhdr
-  movzx rcx,  word [rsi + elf64_hdr.e_ehsize] ; size = e_ehsize
+  
+  ; Test e_machine (offset 16)
+  movzx   rdi,  word [rsi + elf64_hdr.e_machine]     ; The offset is the same for 32/64 bit files
+  ; XXX: This is swapped for BE files (eg, MIPS)
+  ; ex. loading a MIPS binary results in rdi = 0x0800 instead of 0x08 here
 
+
+  call get_bitness
+  mov  [endian], al
+  mov  [bitness], bl
+  ;;mov   rsi,  [mapped_bin]                    ; src  = mapped_bin
+  mov   rdi,  st_elfhdr                       ; dest = st_elfhdr
+    
+  cmp   rbx,  BITS_32
+  je _check_ehsize_b32
+  movzx rcx,  word [rsi + elf64_hdr.e_ehsize] ; size = e_ehsize
   cmp   rcx,  ELFHDR64_SIZE                     ; Check if size is expected
   jne   e_ehsize_error
-  
+  jmp   _check_ehsize_end
+_check_ehsize_b32: 
+  movzx rcx,  word [rsi + elf32_hdr.e_ehsize] ; size = e_ehsize
+  cmp   rcx, ELFHDR32_SIZE
+  jne   e_ehsize_error
+_check_ehsize_end: 
   rep   movsb
 
   xor   rcx,  rcx
@@ -477,3 +500,22 @@ error:
   inc   rdi             ; Return value = 1
   mov   rax,  SYS_EXIT
   syscall
+
+
+;; search the e_machine:bitness list and return the result
+;; rdi = e_machine type
+;; returns in rax
+get_bitness:  
+  mov r8, machine_bits_map
+next_machine: 
+  movzx r9, byte [r8]
+  cmp rdi, r9
+  je found
+  add r8, 3  ;; skip to next entry
+  cmp r8, machine_bits_map_end
+  je error
+
+found:  
+  movzx rax, byte [r8+1] ; rax = endianess
+  movzx rbx, byte [r8+2] ; rbx = bitness
+  ret
