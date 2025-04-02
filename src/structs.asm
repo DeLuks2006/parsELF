@@ -126,3 +126,57 @@ struc ep_table
 endstruc
 
 %define EPTAB_SIZE 2
+
+; ELF32/64 handling for offset tables  
+
+; Offset table for ELF32 and ELF64 structs
+; There are 3 fields which are different size in 32 and 64 bit files
+; They are marked with ! here
+
+
+; names of the fields and their indexes in the offset table
+%define OFF_E_IDENT 0
+%define OFF_E_TYPE  1
+%define OFF_E_MACHINE 2
+%define OFF_E_VERSION 3
+%define OFF_E_ENTRY   4
+%define OFF_E_PHOFF   5
+%define OFF_E_SHOFF   6
+%define OFF_E_FLAGS   7
+%define OFF_E_EHSIZE  8
+%define OFF_E_PHENTSIZE 9
+%define OFF_E_PHNUM  10
+%define OFF_E_SHENTSIZE 11
+%define OFF_E_SHSTRNDX 12
+
+; This table contains the offsets for 32 bit ELFs
+elf32_ehdr_offsets
+  db 0                  ; uchar[16] e_ident  +16
+  db 16                 ; uint16_t e_type    +2
+  db 18                 ; uint16_t e_machine +2
+  db 20                 ; uint32_t e_version +4
+  db 24                 ; uint32_t e_entry   +4  !
+  db 28                 ; uint32_t e_phoff   +4  !
+  db 32                 ; uint32_t e_shoff   +4  !
+  db 36                 ; uint32_t e_flags   +4
+  db 40                 ; uint16_t e_ehsize  +2
+  db 42                 ; uint16_t e_phentsize +2
+  db 44                 ; uint16_t e_phnum   +2
+  db 46                 ; uint16_t e_shentsize +2
+  db 48                 ; uint16_t e_shstrndx +2
+
+; This table contains the offsets for 64 bit ELFs
+elf64_ehdr_offsets
+  db 0                  ; uchar[16] e_ident  +16
+  db 16                 ; uint16_t e_type    +2
+  db 18                 ; uint16_t e_machine +2
+  db 20                 ; uint32_t e_version +4
+  db 24                 ; uint64_t e_entry   +8  !
+  db 32                 ; uint32_t e_phoff   +8  !
+  db 40                 ; uint32_t e_shoff   +8  !
+  db 48                 ; uint32_t e_flags   +4
+  db 52                 ; uint16_t e_ehsize  +2
+  db 54                 ; uint16_t e_phentsize +2
+  db 56                 ; uint16_t e_phnum   +2
+  db 58                 ; uint16_t e_shentsize +2
+  db 60                 ; uint16_t e_shstrndx +2
