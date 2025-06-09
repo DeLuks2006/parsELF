@@ -78,7 +78,6 @@ print_elfh:
   lea   rdi,  elf_filetype
   call  print
 
-  ;;
   movzx rdi,  word [st_elfhdr + elf64_hdr.e_type]
   cmp   rdi,  0x01
   je    .elf_print_rel_type
@@ -211,8 +210,73 @@ print_prgh:
   sub   rsp,  0x38
 
   lea   rdi,  prg_type
-  call  println
+  call  print
 
+  xor   rdi,  rdi
+  mov   edi,  dword [st_prghdr]
+  cmp   edi,  0x00  ; null
+  je    .prg_print_null_type
+  cmp   edi,  0x01  ; load
+  je    .prg_print_load_type
+  cmp   edi,  0x02  ; dyn
+  je    .prg_print_dyn_type
+  cmp   edi,  0x03  ; interp
+  je    .prg_print_interp_type
+  cmp   edi,  0x04  ; note
+  je    .prg_print_note_type
+  cmp   edi,  0x05  ; shlib
+  je    .prg_print_shlib_type
+  cmp   edi,  0x06  ; phdr
+  je    .prg_print_phdr_type
+  cmp   edi,  0x07  ; tls
+  je    .prg_print_tls_type
+  jmp   .prg_print_unknown_type ; unknown value
+
+  .prg_print_null_type:
+    lea   rdi,  prg_pt_null
+    call  println
+    jmp   .prg_print_flags
+
+  .prg_print_load_type:
+    lea   rdi,  prg_pt_load
+    call  println
+    jmp   .prg_print_flags
+
+  .prg_print_dyn_type:
+    lea   rdi,  prg_pt_dyn
+    call  println
+    jmp   .prg_print_flags
+  
+  .prg_print_interp_type:
+    lea   rdi,  prg_pt_interp
+    call  println
+    jmp   .prg_print_flags
+
+  .prg_print_note_type:
+    lea   rdi,  prg_pt_note
+    call  println
+    jmp   .prg_print_flags
+  
+  .prg_print_shlib_type:
+    lea   rdi,  prg_pt_shlib
+    call  println
+    jmp   .prg_print_flags
+
+  .prg_print_phdr_type:
+    lea   rdi,  prg_pt_phdr
+    call  println
+    jmp   .prg_print_flags
+
+  .prg_print_tls_type:
+    lea   rdi,  prg_pt_tls
+    call  println
+    jmp   .prg_print_flags
+
+  .prg_print_unknown_type:
+    lea   rdi,  elf_unknown
+    call  println
+
+  .prg_print_flags:
   lea   rdi,  prg_flags
   call  print
   lea   rdi,  st_scthdr
@@ -262,9 +326,130 @@ print_scth:
   ;.sh_name          resd 0x01; ; dereference me - im a offset in shstrtab
 
   lea   rdi,  sct_type
-  call  println
+  call  print
   ;.sh_type          resd 0x01; ; fancy output me
+  mov   edi,  dword [st_scthdr + elf64_shdr.sh_type]
+  cmp   edi,  0x00
+  je    .sct_print_null
+  cmp   edi,  0x01
+  je    .sct_print_progbits
+  cmp   edi,  0x02
+  je    .sct_print_symtab
+  cmp   edi,  0x03
+  je    .sct_print_strtab
+  cmp   edi,  0x04
+  je    .sct_print_rela
+  cmp   edi,  0x5
+  je    .sct_print_hash
+  cmp   edi,  0x6
+  je    .sct_print_dynamic
+  cmp   edi,  0x7
+  je    .sct_print_note
+  cmp   edi,  0x8
+  je    .sct_print_nobits
+  cmp   edi,  0x9
+  je    .sct_print_rel
+  cmp   edi,  0x0A
+  je    .sct_print_shlib
+  cmp   edi,  0x0B
+  je    .sct_print_dynsym
+  cmp   edi,  0x0E
+  je    .sct_print_init_array
+  cmp   edi,  0x0F
+  je    .sct_print_fini_array
+  cmp   edi,  0x10
+  je    .sct_print_preinit_array
+  cmp   edi,  0x11
+  je    .sct_print_group
+  cmp   edi,  0x12
+  je    .sct_print_symtab_shndx
+  cmp   edi,  0x13
+  je    .sct_print_num
+  cmp   edi,  0x60000000
+  je    .sct_print_loos
+  jmp   .sct_print_unknown
 
+  .sct_print_null:
+    lea   rdi,  sct_st_null
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_progbits:
+    lea   rdi,  sct_st_prgbts
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_symtab:
+    lea   rdi,  sct_st_symtab
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_strtab:
+    lea   rdi,  sct_st_strtab
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_rela:
+    lea   rdi,  sct_st_rela
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_hash:
+    lea   rdi,  sct_st_hash
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_dynamic:
+    lea   rdi,  sct_st_dyn
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_note:
+    lea   rdi,  sct_st_note
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_nobits:
+    lea   rdi,  sct_st_nobits
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_rel:
+    lea   rdi,  sct_st_rel
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_shlib:
+    lea   rdi,  sct_st_shlib
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_dynsym:
+    lea   rdi,  sct_st_dysym
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_init_array:
+    lea   rdi,  sct_st_inarr
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_fini_array:
+    lea   rdi,  sct_st_fiarr
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_preinit_array: 
+    lea   rdi,  sct_st_piarr
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_group:
+    lea   rdi,  sct_st_group
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_symtab_shndx:
+    lea   rdi,  sct_st_shndx
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_num:
+    lea   rdi,  sct_st_num
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_loos:
+    lea   rdi,  sct_st_loos
+    call  println
+    jmp   .sct_print_flags
+  .sct_print_unknown:
+    lea   rdi,  elf_unknown
+    call  println
+
+  .sct_print_flags:
   lea   rdi,  sct_flags
   call  print
   ;.sh_flags         resq 0x01; ; qword - hexdump

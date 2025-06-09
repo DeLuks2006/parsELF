@@ -116,10 +116,19 @@ section   .rodata
   prg_memsz     db  `Size in Memory:\t\t0x`, 0x00
   prg_align     db  `Alignment:\t\t0x`, 0x00
 
+  prg_pt_null   db  "PT_NULL", 0x00
+  prg_pt_load   db  "PT_LOAD", 0x00
+  prg_pt_dyn    db  "PT_DYNAMIC", 0x00
+  prg_pt_interp db  "PT_INTERP", 0x00
+  prg_pt_note   db  "PT_NOTE", 0x00
+  prg_pt_shlib  db  "PT_SHLIB", 0x00
+  prg_pt_phdr   db  "PT_PHDR", 0x00
+  prg_pt_tls    db  "PT_TLS", 0x00
+
   ; SECTION HDR
   sct_banner    db  "___________________________________________________________[ SECTION_HEADERS ]", 0x00
   sct_name      db `Name: `, 0x00
-  sct_type      db `Type: `, 0x00
+  sct_type      db `Type:\t\t`, 0x00
   sct_flags     db `Flags:\t\t`, 0x00
   sct_addr      db `Address:\t0x`, 0x00
   sct_offset    db `Offset:\t\t0x`, 0x00
@@ -128,6 +137,26 @@ section   .rodata
   sct_info      db `Info:\t\t0x`, 0x00
   sct_addralign db `Alignment:\t0x`, 0x00
   sct_entsize   db `Entry Size:\t0x`, 0x00
+
+  sct_st_null   db  "SHT_NULL", 0x00
+  sct_st_prgbts db  "SHT_PROGBITS", 0x00
+  sct_st_symtab db  "SHT_SYMTAB", 0x00
+  sct_st_strtab db  "SHT_STRTAB", 0x00
+  sct_st_rela   db  "SHT_RELA", 0x00
+  sct_st_hash   db  "SHT_HASH", 0x00
+  sct_st_dyn    db  "SHT_DYNAMIC", 0x00
+  sct_st_note   db  "SHT_NOTE", 0x00
+  sct_st_nobits db  "SHT_NOBITS", 0x00
+  sct_st_rel    db  "SHT_REL", 0x00
+  sct_st_shlib  db  "SHT_SHLIB", 0x00
+  sct_st_dysym  db  "SHT_DYNSYM", 0x00
+  sct_st_inarr  db  "SHT_INIT_ARRAY", 0x00
+  sct_st_fiarr  db  "SHT_FINI_ARRAY", 0x00
+  sct_st_piarr  db  "SHT_PREINIT_ARRAY", 0x00
+  sct_st_group  db  "SHT_GROUP", 0x00
+  sct_st_shndx  db  "SHT_SYMTAB_SHNDX", 0x00
+  sct_st_num    db  "SHT_NUM", 0x00
+  sct_st_loos   db  "SHT_LOOS", 0x00
 
 section .text
 global  _start
