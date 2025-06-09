@@ -73,13 +73,13 @@ section   .rodata
   ; ELF HDR
   elf_banner    db  "________________________________________________________________[ ELF HEADER ]", 0x00
   elf_magic     db  `Magic:\t\t\t`, 0x00
-  elf_format    db  `Format: `, 0x00 ; 32 or 64bit
-  elf_endian    db  `Endian: `, 0x00 ; little or big
-  elf_version   db  `Version: `, 0x00
-  elf_trgt_os   db  `Target OS: `, 0x00
-  elf_trgt_v    db  `Target Version: `, 0x00
-  elf_filetype  db  `Type: `, 0x00 ; ET_DYN, ET_EXEC
-  elf_instrset  db  `Instruction Set: `, 0x00 ; MIPS, RISCV, x86
+  elf_format    db  `Format:\t\t\t`, 0x00
+  elf_endian    db  `Endian:\t\t\t`, 0x00
+  elf_version   db  `Version:\t\t`, 0x00
+  elf_trgt_os   db  `Target OS:\t\t0x`, 0x00
+  elf_trgt_v    db  `ABI Version:\t\t0x`, 0x00
+  elf_filetype  db  `Type:\t\t\t`, 0x00
+  elf_instrset  db  `Instruction Set:\t0x`, 0x00
   elf_entry     db  `Entrypoint:\t\t0x`, 0x00
   elf_phoff     db  `ProgHdr Offset:\t\t0x`, 0x00
   elf_shoff     db  `SectHdr Offset:\t\t0x`, 0x00
@@ -90,6 +90,20 @@ section   .rodata
   elf_shentsize db  `Sizeof SectHdr:\t\t0x`, 0x00
   elf_shnum     db  `Num of SectHdr:\t\t0x`, 0x00
   elf_shstrndx  db  `String Table Index:\t0x`, 0x00
+
+  elf_invalid   db  "Invalid Value", 0x00
+  elf_unknown   db  "Unknown Value", 0x00
+
+  elf_32bit     db  "32-bit", 0x00
+  elf_64bit     db  "64-bit", 0x00
+
+  elf_lil_end   db  "Little Endian", 0x00
+  elf_big_end   db  "Big Endian", 0x00
+
+  elf_et_rel    db  "ET_REL", 0x00
+  elf_et_exec   db  "ET_EXEC", 0x00
+  elf_et_dyn    db  "ET_DYN", 0x00
+  elf_et_core   db  "ET_CORE", 0x00
 
   ; PROGRAM HDR
   prg_banner    db  "___________________________________________________________[ PROGRAM_HEADERS ]", 0x00

@@ -17,25 +17,111 @@ print_elfh:
   call  println
 
   lea   rdi,  elf_format
-  call  println
+  call  print
+  
+  ; load byte(st_elfhdr+4)
+  movzx rdi,  byte [st_elfhdr + 4]
+  cmp   rdi,  0x01
+  je    .elf_print_32
+  cmp   rdi,  0x02
+  je    .elf_print_64
+  jmp   .elf_print_invalid_format
 
+  .elf_print_32:
+    lea   rdi,  elf_32bit
+    call  println
+    jmp   .elf_print_endian
+
+  .elf_print_64:
+    lea   rdi,  elf_64bit
+    call  println
+    jmp   .elf_print_endian
+
+  .elf_print_invalid_format:
+    lea   rdi,  elf_invalid
+    call  println
+  
+  .elf_print_endian:
   lea   rdi,  elf_endian
-  call  println
+  call  print
 
+  movzx rdi,  byte [st_elfhdr + 5]
+  cmp   rdi,  0x01
+  je    .elf_print_lil
+  cmp   rdi,  0x02
+  je    .elf_print_big
+  jmp   .elf_print_invalid_endian
+
+  .elf_print_lil:
+    lea   rdi,  elf_lil_end
+    call  println
+    jmp   .elf_print_version
+
+  .elf_print_big:
+    lea   rdi,  elf_big_end
+    call  println
+    jmp   .elf_print_version
+
+  .elf_print_invalid_endian:
+    lea   rdi,  elf_invalid
+    call  println
+
+  .elf_print_version:
   lea   rdi,  elf_version
-  call  println
+  call  print
+  print_num   st_elfhdr,  0x06, 0x10
 
   lea   rdi,  elf_trgt_os
-  call  println
-
-  lea   rdi,  elf_trgt_v
-  call  println
+  call  print
+  print_num   st_elfhdr,  0x07, 0x10
 
   lea   rdi,  elf_filetype
-  call  println
+  call  print
 
+  ;;
+  movzx rdi,  word [st_elfhdr + elf64_hdr.e_type]
+  cmp   rdi,  0x01
+  je    .elf_print_rel_type
+  cmp   rdi,  0x02
+  je    .elf_print_exec_type
+  cmp   rdi,  0x03
+  je    .elf_print_dyn_type
+  cmp   rdi,  0x04
+  je    .elf_print_core_type
+  jmp   .elf_print_unknown_type
+  
+  .elf_print_rel_type:
+    lea   rdi,  elf_et_rel
+    call  println
+    jmp   .elf_print_instrset
+
+  .elf_print_exec_type:
+    lea   rdi,  elf_et_exec
+    call  println
+    jmp   .elf_print_instrset
+
+  .elf_print_dyn_type:
+    lea   rdi,  elf_et_dyn
+    call  println
+    jmp   .elf_print_instrset
+
+  .elf_print_core_type:
+    lea   rdi,  elf_et_core
+    call  println
+    jmp   .elf_print_instrset
+
+  .elf_print_unknown_type:
+    lea   rdi,  elf_unknown
+    call  println
+
+  .elf_print_instrset:
   lea   rdi,  elf_instrset
-  call  println
+  call  print
+  print_num   st_elfhdr, elf64_hdr.e_machine, 0x10
+
+  lea   rdi,  elf_trgt_v
+  call  print
+  print_num   st_elfhdr,  elf64_hdr.e_version, 0x0F ; idk why but i need to make the buffer smaller here
 
   lea   rdi,  elf_entry
   call  print
