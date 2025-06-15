@@ -107,7 +107,7 @@ section   .rodata
 
   ; PROGRAM HDR
   prg_banner    db  "___________________________________________________________[ PROGRAM_HEADERS ]", 0x00
-  prg_type      db  `Type: `, 0x00
+  prg_type      db  `Type:\t\t\t`, 0x00
   prg_flags     db  `Flags:\t\t\t`, 0x00
   prg_offset    db  `Offset:\t\t\t0x`, 0x00
   prg_vaddr     db  `Virtual Address:\t0x`, 0x00
