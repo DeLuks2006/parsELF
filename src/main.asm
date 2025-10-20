@@ -73,13 +73,13 @@ section   .rodata
   ; ELF HDR
   elf_banner    db  "________________________________________________________________[ ELF HEADER ]", 0x00
   elf_magic     db  `Magic:\t\t\t`, 0x00
-  elf_format    db  `Format: `, 0x00 ; 32 or 64bit
-  elf_endian    db  `Endian: `, 0x00 ; little or big
-  elf_version   db  `Version: `, 0x00
-  elf_trgt_os   db  `Target OS: `, 0x00
-  elf_trgt_v    db  `Target Version: `, 0x00
-  elf_filetype  db  `Type: `, 0x00 ; ET_DYN, ET_EXEC
-  elf_instrset  db  `Instruction Set: `, 0x00 ; MIPS, RISCV, x86
+  elf_format    db  `Format:\t\t\t`, 0x00
+  elf_endian    db  `Endian:\t\t\t`, 0x00
+  elf_version   db  `Version:\t\t`, 0x00
+  elf_trgt_os   db  `Target OS:\t\t0x`, 0x00
+  elf_trgt_v    db  `ABI Version:\t\t0x`, 0x00
+  elf_filetype  db  `Type:\t\t\t`, 0x00
+  elf_instrset  db  `Instruction Set:\t0x`, 0x00
   elf_entry     db  `Entrypoint:\t\t0x`, 0x00
   elf_phoff     db  `ProgHdr Offset:\t\t0x`, 0x00
   elf_shoff     db  `SectHdr Offset:\t\t0x`, 0x00
@@ -91,9 +91,23 @@ section   .rodata
   elf_shnum     db  `Num of SectHdr:\t\t0x`, 0x00
   elf_shstrndx  db  `String Table Index:\t0x`, 0x00
 
+  elf_invalid   db  "Invalid Value", 0x00
+  elf_unknown   db  "Unknown Value", 0x00
+
+  elf_32bit     db  "32-bit", 0x00
+  elf_64bit     db  "64-bit", 0x00
+
+  elf_lil_end   db  "Little Endian", 0x00
+  elf_big_end   db  "Big Endian", 0x00
+
+  elf_et_rel    db  "ET_REL", 0x00
+  elf_et_exec   db  "ET_EXEC", 0x00
+  elf_et_dyn    db  "ET_DYN", 0x00
+  elf_et_core   db  "ET_CORE", 0x00
+
   ; PROGRAM HDR
   prg_banner    db  "___________________________________________________________[ PROGRAM_HEADERS ]", 0x00
-  prg_type      db  `Type: `, 0x00
+  prg_type      db  `Type:\t\t\t`, 0x00
   prg_flags     db  `Flags:\t\t\t`, 0x00
   prg_offset    db  `Offset:\t\t\t0x`, 0x00
   prg_vaddr     db  `Virtual Address:\t0x`, 0x00
@@ -102,10 +116,19 @@ section   .rodata
   prg_memsz     db  `Size in Memory:\t\t0x`, 0x00
   prg_align     db  `Alignment:\t\t0x`, 0x00
 
+  prg_pt_null   db  "PT_NULL", 0x00
+  prg_pt_load   db  "PT_LOAD", 0x00
+  prg_pt_dyn    db  "PT_DYNAMIC", 0x00
+  prg_pt_interp db  "PT_INTERP", 0x00
+  prg_pt_note   db  "PT_NOTE", 0x00
+  prg_pt_shlib  db  "PT_SHLIB", 0x00
+  prg_pt_phdr   db  "PT_PHDR", 0x00
+  prg_pt_tls    db  "PT_TLS", 0x00
+
   ; SECTION HDR
   sct_banner    db  "___________________________________________________________[ SECTION_HEADERS ]", 0x00
   sct_name      db `Name: `, 0x00
-  sct_type      db `Type: `, 0x00
+  sct_type      db `Type:\t\t`, 0x00
   sct_flags     db `Flags:\t\t`, 0x00
   sct_addr      db `Address:\t0x`, 0x00
   sct_offset    db `Offset:\t\t0x`, 0x00
@@ -114,6 +137,26 @@ section   .rodata
   sct_info      db `Info:\t\t0x`, 0x00
   sct_addralign db `Alignment:\t0x`, 0x00
   sct_entsize   db `Entry Size:\t0x`, 0x00
+
+  sct_st_null   db  "SHT_NULL", 0x00
+  sct_st_prgbts db  "SHT_PROGBITS", 0x00
+  sct_st_symtab db  "SHT_SYMTAB", 0x00
+  sct_st_strtab db  "SHT_STRTAB", 0x00
+  sct_st_rela   db  "SHT_RELA", 0x00
+  sct_st_hash   db  "SHT_HASH", 0x00
+  sct_st_dyn    db  "SHT_DYNAMIC", 0x00
+  sct_st_note   db  "SHT_NOTE", 0x00
+  sct_st_nobits db  "SHT_NOBITS", 0x00
+  sct_st_rel    db  "SHT_REL", 0x00
+  sct_st_shlib  db  "SHT_SHLIB", 0x00
+  sct_st_dysym  db  "SHT_DYNSYM", 0x00
+  sct_st_inarr  db  "SHT_INIT_ARRAY", 0x00
+  sct_st_fiarr  db  "SHT_FINI_ARRAY", 0x00
+  sct_st_piarr  db  "SHT_PREINIT_ARRAY", 0x00
+  sct_st_group  db  "SHT_GROUP", 0x00
+  sct_st_shndx  db  "SHT_SYMTAB_SHNDX", 0x00
+  sct_st_num    db  "SHT_NUM", 0x00
+  sct_st_loos   db  "SHT_LOOS", 0x00
 
 section .text
 global  _start
